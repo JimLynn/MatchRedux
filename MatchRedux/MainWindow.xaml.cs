@@ -207,7 +207,7 @@ namespace MatchRedux
 			}
 		}
 		
-		private async Task AddGenresAsync(string pid, int pips_id, Progress progress, Thumbnail thumbnail)
+		private async Task AddGenresAsync(string pid, int pips_id, IProgress progress, Thumbnail thumbnail)
 		{
 			//progress.WriteLine("Start Fetching for {0}", pid);
 			if (progress.IsCancelled)
@@ -216,7 +216,12 @@ namespace MatchRedux
 			}
 			try
 			{
-				var progpage = await LoadXmlAsync("http://www.bbc.co.uk/programmes/" + pid + ".xml");
+				var waitIon = LoadXmlAsync("http://www.bbc.co.uk/iplayer/ion/episodedetail/episode/" + pid + "/format/xml");
+				var waitPips = LoadXmlAsync("http://www.bbc.co.uk/programmes/" + pid + ".xml");
+				var pages = await TaskEx.WhenAll(waitIon, waitPips);
+				var progpage = pages[1];
+				var ionPage = pages[0];
+				//var progpage = await LoadXmlAsync("http://www.bbc.co.uk/programmes/" + pid + ".xml");
 				var genres = (from cat in progpage.XPathSelectElements("categories//category[ancestor-or-self::category[@type='genre']]")
 							  let cats = from c in cat.XPathSelectElements("./descendant-or-self::category") select c.Attribute("key").Value
 							  select new
@@ -255,12 +260,82 @@ namespace MatchRedux
 					//    });
 					//});
 				}
+
+				FetchContributors(ionPage, data, pid);
+				FetchTags(ionPage, data, pid);
+				FetchCategories(ionPage, data, pid);
 				data.SaveChanges(); 
 				//await TaskEx.Run(() => { data.SaveChanges(); });
 			}
 			catch (WebException)
 			{
 			}
+		}
+
+		private void FetchCategories(XElement root, ReduxEntities data, string pid)
+		{
+			var cats = from cat in root.XPathSelectElements("categories/category[@type != 'genre']")
+					   select new category()
+					   {
+						   pid = pid,
+						   type = cat.Attribute("type").Value,
+						   catkey = cat.Attribute("key").Value,
+						   title = cat.Element("title").Value
+					   };
+			foreach (var c in cats)
+			{
+				data.categories.AddObject(c);
+			}
+
+		}
+
+		private void FetchTags(XElement episode, ReduxEntities data, string pid)
+		{
+			XNamespace ion = "http://bbc.co.uk/2008/iplayer/ion";
+			var tags = episode.Elements(ion + "blocklist")
+					.Elements(ion + "episode_detail")
+					.Elements(ion + "tag_schemes")
+					.Elements(ion + "tag_scheme")
+					.Elements(ion + "tags")
+					.Elements(ion + "tag");
+			foreach (var tag in tags)
+			{
+				var tg = new tag
+				{
+					tag_id = tag.Element(ion + "id").Value,
+					name = tag.Element(ion + "name").Value,
+					value = tag.Element(ion + "value").Value,
+					pid = pid
+				};
+				data.AddObject("tags", tg);
+			}
+
+		}
+
+		private void FetchContributors(XElement episode, ReduxEntities data, string pid)
+		{
+			XNamespace ion = "http://bbc.co.uk/2008/iplayer/ion";
+			var contributors = episode.Elements(ion + "blocklist")
+								.Elements(ion + "episode_detail")
+								.Elements(ion + "contributors")
+								.Elements(ion + "contributor");
+			foreach (var contributor in contributors)
+			{
+				var ct = new contributor
+				{
+					character_name = contributor.Element(ion + "character_name").Value,
+					family_name = contributor.Element(ion + "family_name").Value,
+					given_name = contributor.Element(ion + "given_name").Value,
+					role = contributor.Element(ion + "role").Value,
+					role_name = contributor.Element(ion + "role_name").Value,
+					type = contributor.Element(ion + "type").Value,
+					contributor_id = Convert.ToInt32(contributor.Element(ion + "id").Value),
+					pid = pid
+				};
+				data.AddObject("contributors", ct);
+			}
+			//data.SaveChanges();
+
 		}
 
 		private async Task<XElement> LoadXmlAsync(string url)

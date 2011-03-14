@@ -21,7 +21,7 @@ namespace MatchRedux
 	/// <summary>
 	/// Interaction logic for FetchIon.xaml
 	/// </summary>
-	public partial class FetchIon : Window, INotifyPropertyChanged
+	public partial class FetchIon : Window, INotifyPropertyChanged, IProgress
 	{
 		public FetchIon()
 		{
@@ -51,7 +51,7 @@ namespace MatchRedux
 				}
 				else
 				{
-					await TaskEx.WhenAll(from item in nextSixteen select ProcessItemAsync(item, thumbnail));
+					await TaskEx.WhenAll(from item in nextSixteen select FetchItemGenreAndIonAsync(item, thumbnail, this, IsTags, IsIonContributors, IsCategories));
 					ctx.SaveChanges();
 				}
 			}
@@ -59,9 +59,9 @@ namespace MatchRedux
 			IsCancelled = false;
 		}
 
-		private async Task ProcessItemAsync(scan_pips_contributors item, Thumbnail thumbnail)
+		private async Task FetchItemGenreAndIonAsync(scan_pips_contributors item, Thumbnail thumbnail, IProgress progress, bool isTags, bool isIonContributors, bool isCategories)
 		{
-			if (IsCancelled)
+			if (progress.IsCancelled)
 			{
 				return;
 			}
@@ -70,14 +70,14 @@ namespace MatchRedux
 			try
 			{
 
-				if (IsTags || IsIonContributors)
+				if (isTags || isIonContributors)
 				{
 					WebClient client = new WebClient();
 					string result = await client.DownloadStringTaskAsync("http://www.bbc.co.uk/iplayer/ion/episodedetail/episode/" + item.pid + "/format/xml");
 
 					XElement episode = XElement.Parse(result);
 					XNamespace ion = "http://bbc.co.uk/2008/iplayer/ion";
-					if (IsIonContributors)
+					if (isIonContributors)
 					{
 						await TaskEx.Run(() =>
 							{
@@ -104,7 +104,7 @@ namespace MatchRedux
 								data.SaveChanges();
 							});
 					}
-					if (IsTags)
+					if (isTags)
 					{
 						await TaskEx.Run(() =>
 							{
@@ -130,7 +130,7 @@ namespace MatchRedux
 							});
 					}
 				}
-				if (IsCategories)
+				if (isCategories)
 				{
 					WebClient catClient = new WebClient();
 					var catresult = await catClient.DownloadStringTaskAsync("http://www.bbc.co.uk/programmes/" + item.pid + ".xml");

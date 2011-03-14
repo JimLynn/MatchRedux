@@ -88,17 +88,30 @@ namespace MatchRedux
 			Process.Start(link.NavigateUri.ToString());
 		}
 
+		/// <summary>
+		/// Scan the pips programmes data for redux programmes for which we don't have
+		/// metadata
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void ScanAll_Click(object sender, RoutedEventArgs e)
 		{
+			Thumbnail thumbnail = new Thumbnail();
+			thumbnail.Show();
 			cancelButton.IsEnabled = true;
 			var itemStore = reduxItems;
-			var earliest = itemStore.redux_items.Min(r => r.aired).Date;
-			var latest = itemStore.redux_items.Max(r => r.aired).Date;
+			var notmatched = (from r in itemStore.redux_items
+							  from rp in itemStore.redux_to_pips
+							  where r.id == rp.redux_id && rp.pips_id == 0
+							  select r.aired.Date).Distinct().OrderBy(d => d).ToList();
+
+			var earliest = notmatched.First();	//itemStore.redux_items.Min(r => r.aired).Date;
+			var latest = notmatched.Last();		//itemStore.redux_items.Max(r => r.aired).Date;
 			Task.Factory.StartNew(() =>
 				{
 					for (DateTime dt = earliest; dt <= latest; dt = dt.AddDays(1))
 					{
-						ScanWholeDay(dt);
+						ScanWholeDay(dt, thumbnail);
 						if (_cancelled)
 						{
 							Dispatcher.Invoke((MyDelegate)delegate
@@ -115,7 +128,7 @@ namespace MatchRedux
 
 		private delegate void MyDelegate();
 
-		private void ScanWholeDay(DateTime date)
+		private void ScanWholeDay(DateTime date, Thumbnail thumbnail)
 		{
 			reduxItems = new ReduxEntities();
 			Dispatcher.Invoke((MyDelegate)delegate { dateScanning.Content = date.ToString("dd/MM/yyyy"); });
@@ -204,15 +217,19 @@ namespace MatchRedux
 				var already = (from p in reduxItems.pips_programmes
 							   where p.start_time >= dayStart && p.start_time < dayEnd
 							   select p).ToList();
+
+				List<pips_programmes> newProgrammes = new List<pips_programmes>();
+			
 				foreach (var prog in programmes)
 				{
 					if (already.Any(p => p.service_id == prog.service_id && p.start_time == prog.start_time) == false)
 					{
 						reduxItems.pips_programmes.AddObject(prog);
+						newProgrammes.Add(prog);
 					}
 				}
 				//reduxItems.Scanned.Add(new Scanned() { DateScanned = dayStart });
-				//reduxItems.SaveChanges();
+				reduxItems.SaveChanges();
 				DateTime timerend = DateTime.Now;
 				Dispatcher.Invoke((MyDelegate)delegate { working.Content = "took " + (timerend - timerstart).ToString(); });
 			//}

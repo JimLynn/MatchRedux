@@ -17,7 +17,7 @@ namespace MatchRedux
 	/// <summary>
 	/// Interaction logic for Progress.xaml
 	/// </summary>
-	public partial class Progress : Window
+	public partial class Progress : Window, IProgress
 	{
 		public Progress()
 		{
@@ -56,6 +56,11 @@ namespace MatchRedux
 
 		public bool IsCancelled { get; set; }
 
+	}
+
+	public interface IProgress
+	{
+		bool IsCancelled { get; set; }
 	}
 
 }
