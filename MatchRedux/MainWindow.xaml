@@ -1,0 +1,24 @@
+﻿<Window x:Class="MatchRedux.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="386" Width="869">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="0">
+            <Button Content="Go" Click="GetData"/>
+            <Button Content="Go Async" Click="GetDataAsync"/>
+            <Button Content="Day Scan" Click="DayScan_Click"/>
+            <Button Content="Find Gaps" Click="FIndGaps_Click"/>
+            <Button Content="Schedule" Click="Schedule_Click"/>
+            <Button Content="Images" Click="Images_Click"/>
+            <Button Content="TreeMap" Click="TreeMap_Click"/>
+            <Button Content="Fetch Ion" Click="FetchIon_Click"/>
+            <Button Content="New Progs" Click="IngestNewReduxData" />
+            <Label x:Name="label" Width="200"/>
+        </StackPanel>
+        <DataGrid x:Name="dataGrid" Grid.Row="1"/>
+    </Grid>
+</Window>

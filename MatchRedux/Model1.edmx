@@ -1,0 +1,519 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="2.0" xmlns:edmx="http://schemas.microsoft.com/ado/2008/10/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="ReduxItems.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2008" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
+        <EntityContainer Name="ReduxItemsStoreContainer">
+          <EntitySet Name="canonical" EntityType="ReduxItems.Store.canonical" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="categories" EntityType="ReduxItems.Store.categories" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="contributors" EntityType="ReduxItems.Store.contributors" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="gaps" EntityType="ReduxItems.Store.gaps" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="genre_pids" EntityType="ReduxItems.Store.genre_pids" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="genres" EntityType="ReduxItems.Store.genres" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="partialschedulematch" EntityType="ReduxItems.Store.partialschedulematch" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="pips_programmes" EntityType="ReduxItems.Store.pips_programmes" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="redux_items" EntityType="ReduxItems.Store.redux_items" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="redux_to_pips" EntityType="ReduxItems.Store.redux_to_pips" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="redux_to_pipstoo" EntityType="ReduxItems.Store.redux_to_pipstoo" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="scan_pips_contributors" EntityType="ReduxItems.Store.scan_pips_contributors" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="tags" EntityType="ReduxItems.Store.tags" store:Type="Tables" Schema="dbo" />
+        </EntityContainer>
+        <EntityType Name="canonical">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="redux_id" Type="int" Nullable="false" />
+          <Property Name="IsCanonical" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="categories">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="pid" Type="nvarchar" MaxLength="30" />
+          <Property Name="type" Type="nvarchar" MaxLength="50" />
+          <Property Name="catkey" Type="nvarchar" MaxLength="255" />
+          <Property Name="title" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="contributors">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="pid" Type="nvarchar" MaxLength="30" />
+          <Property Name="character_name" Type="nvarchar" MaxLength="100" />
+          <Property Name="family_name" Type="nvarchar" MaxLength="100" />
+          <Property Name="given_name" Type="nvarchar" MaxLength="100" />
+          <Property Name="contributor_id" Type="int" Nullable="false" />
+          <Property Name="role" Type="nvarchar" MaxLength="100" />
+          <Property Name="role_name" Type="nvarchar" MaxLength="100" />
+          <Property Name="type" Type="nvarchar" MaxLength="100" />
+        </EntityType>
+        <EntityType Name="gaps">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="programme_id" Type="int" />
+          <Property Name="service_id" Type="int" />
+          <Property Name="gapstart" Type="datetime" />
+          <Property Name="gapend" Type="datetime" />
+        </EntityType>
+        <EntityType Name="genre_pids">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="path" Type="varchar" MaxLength="255" />
+          <Property Name="pid" Type="varchar" MaxLength="20" />
+        </EntityType>
+        <EntityType Name="genres">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="pips_id" Type="int" Nullable="false" />
+          <Property Name="title" Type="nvarchar" MaxLength="100" />
+          <Property Name="name" Type="nvarchar" MaxLength="100" />
+          <Property Name="path" Type="nvarchar" MaxLength="100" />
+        </EntityType>
+        <EntityType Name="partialschedulematch">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="redux_id" Type="int" />
+          <Property Name="pips_id" Type="int" />
+          <Property Name="overlap" Type="datetime" />
+        </EntityType>
+        <EntityType Name="pips_programmes">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="programme_name" Type="nvarchar" MaxLength="255" />
+          <Property Name="display_title" Type="nvarchar" MaxLength="255" />
+          <Property Name="display_subtitle" Type="nvarchar" MaxLength="255" />
+          <Property Name="start_time" Type="datetime" Nullable="false" />
+          <Property Name="end_time" Type="datetime" Nullable="false" />
+          <Property Name="duration" Type="int" Nullable="false" />
+          <Property Name="pid" Type="nvarchar" MaxLength="20" />
+          <Property Name="service_id" Type="int" Nullable="false" />
+          <Property Name="service_name" Type="nvarchar" MaxLength="100" />
+          <Property Name="description" Type="nvarchar" MaxLength="255" />
+          <Property Name="matched" Type="int" Nullable="false" />
+          <Property Name="rawdata" Type="nvarchar(max)" />
+          <Property Name="start_gmt" Type="datetime" Nullable="false" />
+          <Property Name="end_gmt" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="redux_items">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="programme_name" Type="nvarchar" MaxLength="255" />
+          <Property Name="short_description" Type="nvarchar" MaxLength="255" />
+          <Property Name="duration" Type="int" Nullable="false" />
+          <Property Name="service_id" Type="int" Nullable="false" />
+          <Property Name="aired" Type="datetime" Nullable="false" />
+          <Property Name="disk_reference" Type="nvarchar" MaxLength="255" />
+          <Property Name="programme_crid" Type="nvarchar" MaxLength="255" />
+          <Property Name="series_crid" Type="nvarchar" MaxLength="255" />
+          <Property Name="has_live_subtitles" Type="bit" Nullable="false" />
+          <Property Name="created_at" Type="datetime" Nullable="false" />
+          <Property Name="updated_at" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="redux_to_pips">
+          <Key>
+            <PropertyRef Name="redux_id" />
+            <PropertyRef Name="pips_id" />
+          </Key>
+          <Property Name="redux_id" Type="int" Nullable="false" />
+          <Property Name="pips_id" Type="int" Nullable="false" />
+          <Property Name="ischecked" Type="bit" Nullable="false" />
+          <Property Name="title_match" Type="bit" Nullable="false" />
+          <Property Name="duration_match" Type="bit" Nullable="false" />
+          <Property Name="start_match" Type="bit" Nullable="false" />
+          <Property Name="partial_match" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="redux_to_pipstoo">
+          <Key>
+            <PropertyRef Name="redux_id" />
+            <PropertyRef Name="pips_id" />
+          </Key>
+          <Property Name="redux_id" Type="int" Nullable="false" />
+          <Property Name="pips_id" Type="int" Nullable="false" />
+          <Property Name="ischecked" Type="int" />
+          <Property Name="title_match" Type="int" />
+          <Property Name="duration_match" Type="int" />
+          <Property Name="start_match" Type="int" />
+          <Property Name="partial_match" Type="int" />
+        </EntityType>
+        <EntityType Name="scan_pips_contributors">
+          <Key>
+            <PropertyRef Name="pid" />
+          </Key>
+          <Property Name="pid" Type="nvarchar" Nullable="false" MaxLength="20" />
+          <Property Name="scanned" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="tags">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="pid" Type="nvarchar" MaxLength="30" />
+          <Property Name="tag_id" Type="nvarchar" MaxLength="30" />
+          <Property Name="name" Type="nvarchar" MaxLength="255" />
+          <Property Name="value" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="ReduxItems" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+        <EntityContainer Name="ReduxEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="gaps" EntityType="ReduxItems.gap" />
+          <EntitySet Name="partialschedulematches" EntityType="ReduxItems.partialschedulematch" />
+          <EntitySet Name="pips_programmes" EntityType="ReduxItems.pips_programmes" />
+          <EntitySet Name="redux_items" EntityType="ReduxItems.redux_items" />
+          <EntitySet Name="redux_to_pips" EntityType="ReduxItems.redux_to_pips" />
+          <EntitySet Name="redux_to_pipstoo" EntityType="ReduxItems.redux_to_pipstoo" />
+          <EntitySet Name="genres" EntityType="ReduxItems.genre" />
+          <EntitySet Name="genre_pids" EntityType="ReduxItems.genre_pids" />
+          <EntitySet Name="scan_pips_contributors" EntityType="ReduxItems.scan_pips_contributors" />
+          <EntitySet Name="contributors" EntityType="ReduxItems.contributor" />
+          <EntitySet Name="tags" EntityType="ReduxItems.tag" />
+          <EntitySet Name="categories" EntityType="ReduxItems.category" />
+          <EntitySet Name="canonicals" EntityType="ReduxItems.canonical" />
+        </EntityContainer>
+        <EntityType Name="gap">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="programme_id" Type="Int32" Nullable="false" />
+          <Property Name="service_id" Type="Int32" Nullable="false" />
+          <Property Name="gapstart" Type="DateTime" Nullable="false" />
+          <Property Name="gapend" Type="DateTime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="partialschedulematch">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="redux_id" Type="Int32" Nullable="false" />
+          <Property Name="pips_id" Type="Int32" Nullable="false" />
+          <Property Name="overlap" Type="DateTime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="pips_programmes">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="programme_name" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+          <Property Name="display_title" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+          <Property Name="display_subtitle" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+          <Property Name="start_time" Type="DateTime" Nullable="false" />
+          <Property Name="end_time" Type="DateTime" Nullable="false" />
+          <Property Name="duration" Type="Int32" Nullable="false" />
+          <Property Name="pid" Type="String" MaxLength="20" Unicode="true" FixedLength="false" />
+          <Property Name="service_id" Type="Int32" Nullable="false" />
+          <Property Name="service_name" Type="String" MaxLength="100" Unicode="true" FixedLength="false" />
+          <Property Name="description" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+          <Property Name="matched" Type="Int32" Nullable="false" />
+          <Property Name="rawdata" Type="String" MaxLength="Max" Unicode="true" FixedLength="false" />
+          <Property Name="start_gmt" Type="DateTime" Nullable="false" />
+          <Property Name="end_gmt" Type="DateTime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="redux_items">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="programme_name" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+          <Property Name="short_description" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+          <Property Name="duration" Type="Int32" Nullable="false" />
+          <Property Name="service_id" Type="Int32" Nullable="false" />
+          <Property Name="aired" Type="DateTime" Nullable="false" />
+          <Property Name="disk_reference" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+          <Property Name="programme_crid" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+          <Property Name="series_crid" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+          <Property Name="has_live_subtitles" Type="Boolean" Nullable="false" />
+          <Property Name="created_at" Type="DateTime" Nullable="false" />
+          <Property Name="updated_at" Type="DateTime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="redux_to_pips">
+          <Key>
+            <PropertyRef Name="redux_id" />
+            <PropertyRef Name="pips_id" />
+          </Key>
+          <Property Name="redux_id" Type="Int32" Nullable="false" />
+          <Property Name="pips_id" Type="Int32" Nullable="false" />
+          <Property Name="ischecked" Type="Boolean" Nullable="false" />
+          <Property Name="title_match" Type="Boolean" Nullable="false" />
+          <Property Name="duration_match" Type="Boolean" Nullable="false" />
+          <Property Name="start_match" Type="Boolean" Nullable="false" />
+          <Property Name="partial_match" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="redux_to_pipstoo">
+          <Key>
+            <PropertyRef Name="redux_id" />
+            <PropertyRef Name="pips_id" />
+          </Key>
+          <Property Name="redux_id" Type="Int32" Nullable="false" />
+          <Property Name="pips_id" Type="Int32" Nullable="false" />
+          <Property Name="ischecked" Type="Int32" />
+          <Property Name="title_match" Type="Int32" />
+          <Property Name="duration_match" Type="Int32" />
+          <Property Name="start_match" Type="Int32" />
+          <Property Name="partial_match" Type="Int32" />
+        </EntityType>
+        <EntityType Name="genre">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Type="Int32" Name="id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="title" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="name" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="path" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Type="Int32" Name="pips_id" Nullable="false" />
+        </EntityType>
+        <EntityType Name="genre_pids">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Type="Int32" Name="id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="path" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="pid" MaxLength="20" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="scan_pips_contributors">
+          <Key>
+            <PropertyRef Name="pid" />
+          </Key>
+          <Property Type="String" Name="pid" Nullable="false" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Type="Boolean" Name="scanned" Nullable="false" />
+        </EntityType>
+        <EntityType Name="contributor">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Type="Int32" Name="id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="pid" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="character_name" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="family_name" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="given_name" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Type="Int32" Name="contributor_id" Nullable="false" />
+          <Property Type="String" Name="role" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="role_name" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="type" MaxLength="100" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="tag">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Type="Int32" Name="id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="pid" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="tag_id" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="name" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="value" MaxLength="255" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="category">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Type="Int32" Name="id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="pid" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="type" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="catkey" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="title" MaxLength="255" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="canonical">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Type="Int32" Name="id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="redux_id" Nullable="false" />
+          <Property Type="Boolean" Name="IsCanonical" Nullable="false" />
+        </EntityType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2008/09/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="ReduxItemsStoreContainer" CdmEntityContainer="ReduxEntities">
+          <EntitySetMapping Name="gaps"><EntityTypeMapping TypeName="ReduxItems.gap"><MappingFragment StoreEntitySet="gaps">
+            <ScalarProperty Name="id" ColumnName="id" />
+            <ScalarProperty Name="programme_id" ColumnName="programme_id" />
+            <ScalarProperty Name="service_id" ColumnName="service_id" />
+            <ScalarProperty Name="gapstart" ColumnName="gapstart" />
+            <ScalarProperty Name="gapend" ColumnName="gapend" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="partialschedulematches"><EntityTypeMapping TypeName="ReduxItems.partialschedulematch"><MappingFragment StoreEntitySet="partialschedulematch">
+            <ScalarProperty Name="id" ColumnName="id" />
+            <ScalarProperty Name="redux_id" ColumnName="redux_id" />
+            <ScalarProperty Name="pips_id" ColumnName="pips_id" />
+            <ScalarProperty Name="overlap" ColumnName="overlap" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="pips_programmes"><EntityTypeMapping TypeName="ReduxItems.pips_programmes"><MappingFragment StoreEntitySet="pips_programmes">
+            <ScalarProperty Name="id" ColumnName="id" />
+            <ScalarProperty Name="programme_name" ColumnName="programme_name" />
+            <ScalarProperty Name="display_title" ColumnName="display_title" />
+            <ScalarProperty Name="display_subtitle" ColumnName="display_subtitle" />
+            <ScalarProperty Name="start_time" ColumnName="start_time" />
+            <ScalarProperty Name="end_time" ColumnName="end_time" />
+            <ScalarProperty Name="duration" ColumnName="duration" />
+            <ScalarProperty Name="pid" ColumnName="pid" />
+            <ScalarProperty Name="service_id" ColumnName="service_id" />
+            <ScalarProperty Name="service_name" ColumnName="service_name" />
+            <ScalarProperty Name="description" ColumnName="description" />
+            <ScalarProperty Name="matched" ColumnName="matched" />
+            <ScalarProperty Name="rawdata" ColumnName="rawdata" />
+            <ScalarProperty Name="start_gmt" ColumnName="start_gmt" />
+            <ScalarProperty Name="end_gmt" ColumnName="end_gmt" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="redux_items"><EntityTypeMapping TypeName="ReduxItems.redux_items"><MappingFragment StoreEntitySet="redux_items">
+            <ScalarProperty Name="id" ColumnName="id" />
+            <ScalarProperty Name="programme_name" ColumnName="programme_name" />
+            <ScalarProperty Name="short_description" ColumnName="short_description" />
+            <ScalarProperty Name="duration" ColumnName="duration" />
+            <ScalarProperty Name="service_id" ColumnName="service_id" />
+            <ScalarProperty Name="aired" ColumnName="aired" />
+            <ScalarProperty Name="disk_reference" ColumnName="disk_reference" />
+            <ScalarProperty Name="programme_crid" ColumnName="programme_crid" />
+            <ScalarProperty Name="series_crid" ColumnName="series_crid" />
+            <ScalarProperty Name="has_live_subtitles" ColumnName="has_live_subtitles" />
+            <ScalarProperty Name="created_at" ColumnName="created_at" />
+            <ScalarProperty Name="updated_at" ColumnName="updated_at" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="redux_to_pips"><EntityTypeMapping TypeName="ReduxItems.redux_to_pips"><MappingFragment StoreEntitySet="redux_to_pips">
+            <ScalarProperty Name="redux_id" ColumnName="redux_id" />
+            <ScalarProperty Name="pips_id" ColumnName="pips_id" />
+            <ScalarProperty Name="ischecked" ColumnName="ischecked" />
+            <ScalarProperty Name="title_match" ColumnName="title_match" />
+            <ScalarProperty Name="duration_match" ColumnName="duration_match" />
+            <ScalarProperty Name="start_match" ColumnName="start_match" />
+            <ScalarProperty Name="partial_match" ColumnName="partial_match" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="redux_to_pipstoo"><EntityTypeMapping TypeName="ReduxItems.redux_to_pipstoo"><MappingFragment StoreEntitySet="redux_to_pipstoo">
+            <ScalarProperty Name="redux_id" ColumnName="redux_id" />
+            <ScalarProperty Name="pips_id" ColumnName="pips_id" />
+            <ScalarProperty Name="ischecked" ColumnName="ischecked" />
+            <ScalarProperty Name="title_match" ColumnName="title_match" />
+            <ScalarProperty Name="duration_match" ColumnName="duration_match" />
+            <ScalarProperty Name="start_match" ColumnName="start_match" />
+            <ScalarProperty Name="partial_match" ColumnName="partial_match" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="genres">
+            <EntityTypeMapping TypeName="ReduxItems.genre">
+              <MappingFragment StoreEntitySet="genres">
+                <ScalarProperty Name="pips_id" ColumnName="pips_id" />
+                <ScalarProperty Name="path" ColumnName="path" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="title" ColumnName="title" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="genre_pids">
+            <EntityTypeMapping TypeName="ReduxItems.genre_pids">
+              <MappingFragment StoreEntitySet="genre_pids">
+                <ScalarProperty Name="pid" ColumnName="pid" />
+                <ScalarProperty Name="path" ColumnName="path" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="scan_pips_contributors">
+            <EntityTypeMapping TypeName="ReduxItems.scan_pips_contributors">
+              <MappingFragment StoreEntitySet="scan_pips_contributors">
+                <ScalarProperty Name="scanned" ColumnName="scanned" />
+                <ScalarProperty Name="pid" ColumnName="pid" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="contributors">
+            <EntityTypeMapping TypeName="ReduxItems.contributor">
+              <MappingFragment StoreEntitySet="contributors">
+                <ScalarProperty Name="type" ColumnName="type" />
+                <ScalarProperty Name="role_name" ColumnName="role_name" />
+                <ScalarProperty Name="role" ColumnName="role" />
+                <ScalarProperty Name="contributor_id" ColumnName="contributor_id" />
+                <ScalarProperty Name="given_name" ColumnName="given_name" />
+                <ScalarProperty Name="family_name" ColumnName="family_name" />
+                <ScalarProperty Name="character_name" ColumnName="character_name" />
+                <ScalarProperty Name="pid" ColumnName="pid" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tags">
+            <EntityTypeMapping TypeName="ReduxItems.tag">
+              <MappingFragment StoreEntitySet="tags">
+                <ScalarProperty Name="value" ColumnName="value" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="tag_id" ColumnName="tag_id" />
+                <ScalarProperty Name="pid" ColumnName="pid" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="categories">
+            <EntityTypeMapping TypeName="ReduxItems.category">
+              <MappingFragment StoreEntitySet="categories">
+                <ScalarProperty Name="title" ColumnName="title" />
+                <ScalarProperty Name="catkey" ColumnName="catkey" />
+                <ScalarProperty Name="type" ColumnName="type" />
+                <ScalarProperty Name="pid" ColumnName="pid" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="canonicals">
+            <EntityTypeMapping TypeName="ReduxItems.canonical">
+              <MappingFragment StoreEntitySet="canonical">
+                <ScalarProperty Name="IsCanonical" ColumnName="IsCanonical" />
+                <ScalarProperty Name="redux_id" ColumnName="redux_id" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2008/10/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="True" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="True" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams>
+      <Diagram Name="Model1">
+        <EntityTypeShape EntityType="ReduxItems.gap" Width="1.5" PointX="0.75" PointY="0.75" Height="1.7566536458333331" IsExpanded="true" />
+        <EntityTypeShape EntityType="ReduxItems.partialschedulematch" Width="1.5" PointX="2.75" PointY="0.75" Height="1.5923063151041674" IsExpanded="true" />
+        <EntityTypeShape EntityType="ReduxItems.pips_programmes" Width="1.5" PointX="0.75" PointY="3.75" Height="3.4001269531249996" IsExpanded="true" />
+        <EntityTypeShape EntityType="ReduxItems.redux_items" Width="1.5" PointX="2.75" PointY="3.75" Height="2.9070849609374996" IsExpanded="true" />
+        <EntityTypeShape EntityType="ReduxItems.redux_to_pips" Width="1.5" PointX="4.75" PointY="0.75" Height="2.0853483072916674" IsExpanded="true" />
+        <EntityTypeShape EntityType="ReduxItems.redux_to_pipstoo" Width="1.5" PointX="4.75" PointY="3.75" Height="2.085348307291667" IsExpanded="true" />
+        <EntityTypeShape EntityType="ReduxItems.genre" Width="1.5" PointX="6.625" PointY="4.375" Height="1.7566536458333326" />
+        <EntityTypeShape EntityType="ReduxItems.genre_pids" Width="1.5" PointX="7.375" PointY="0.75" Height="1.4279589843749996" />
+        <EntityTypeShape EntityType="ReduxItems.scan_pips_contributors" Width="1.5" PointX="7.375" PointY="2.75" Height="1.2636116536458317" />
+        <EntityTypeShape EntityType="ReduxItems.contributor" Width="1.5" PointX="8.375" PointY="4.25" Height="2.4140429687499996" />
+        <EntityTypeShape EntityType="ReduxItems.tag" Width="1.5" PointX="10.375" PointY="4.25" Height="1.7566536458333353" />
+        <EntityTypeShape EntityType="ReduxItems.category" Width="1.5" PointX="9.5" PointY="2.125" Height="1.7566536458333317" />
+        <EntityTypeShape EntityType="ReduxItems.canonical" Width="1.5" PointX="9.375" PointY="0.5" Height="1.4279589843750031" />
+      </Diagram>
+    </Diagrams>
+  </Designer>
+</edmx:Edmx>

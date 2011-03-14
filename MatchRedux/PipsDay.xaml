@@ -1,0 +1,26 @@
+﻿<Window x:Class="MatchRedux.PipsDay"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PipsDay" Height="429" Width="1148">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Grid.Row="0">
+            <DatePicker x:Name="datePicker" SelectedDate="{Binding StartDate}" Margin="5"/>
+            <DatePicker x:Name="datePickerEnd" Margin="5" SelectedDate="{Binding EndDate}"/>
+            <TextBox Width="40" Margin="5" Text="{Binding ServiceId, Mode=OneWay}"/>
+            <Button Width="120" Content="Fetch Current" Click="FetchCurrent_Click"/>
+            <Button Content="Fill In" Click="FillIn_Click"/>
+            <Button Content="Save" Click="Save_Click"/>
+            <Button Content="All" Click="ShowAll_Click"/>
+            <Button Content="filtered" Click="ShowFiltered_Click"/>
+            <Button Content="Distinct" Click="ShowDistinct_Click"/>
+            <Button Content="To Save" Click="ToSave_Click"/>
+            <Label x:Name="gapLabel" Margin="5"/>
+        </StackPanel>
+        <DataGrid x:Name="gapGrid" Grid.Row="1"/>
+
+    </Grid>
+</Window>

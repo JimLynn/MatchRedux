@@ -1,0 +1,175 @@
+﻿<Window x:Class="MatchRedux.DayScan"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:MatchRedux"
+        Title="Scan a day's listings" Height="360" Width="1213">
+    <Grid>
+        <Grid.Resources>
+            <local:BoolVisibilityConverter x:Key="BoolVisibilityConverter"/>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <WrapPanel Orientation="Horizontal">
+            <DatePicker Height="25" 
+                    HorizontalAlignment="Left" 
+                    Margin="4" 
+                    Name="datePicker1" VerticalAlignment="Top" Width="115" />
+            <Button Content="Scan Day" 
+                Click="ScanDay_Click"
+                HorizontalAlignment="Left" 
+                Name="button1" 
+                VerticalAlignment="Top" />
+            <Button Content="Find Gaps" 
+                Click="FindGaps_Click"
+                HorizontalAlignment="Left" 
+                Name="findgapsButton" 
+                VerticalAlignment="Top"/>
+            <Button 
+                    Content="Start Scanning"
+                    Width="120"
+                    Click="ScanAll_Click"/>
+            <Button 
+                    Content="Cancel"
+                    IsEnabled="False"
+                    x:Name="cancelButton"
+                    Click="Cancel_Click"/>   
+            <Label x:Name="dateScanning" Margin="5"/>
+            <Label x:Name="working" Margin="5"/>
+            <Button Content="Save" Click="Save_Click" />
+            <Button Content="Show Mismatches" Click="Mismatch_Click" Width="130"/>
+            <Button Content="Dump mismatches" Click="MismatchDump_Click" Width="130"/>
+            <Button Content="Test Update" Click="TestUpdate_Click" Width="100"/>
+            <Button Content="Partial Matches" Click="PartialMatch_Click" Width="100"/>
+            <Button Content="Mark overlaps" Click="PartialMatchMarkOverlap_Click" Width="110"/>
+            <Button Content="Partial w/Title" Click="PartialMatchWithTitle_Click" Width="130"/>
+            <Button Content="Double Overlaps" Click="DoubleOverlap_Click" Width="130"/>
+            <Button Content="Test Partial" Click="TestPartial_Click" Width="100"/>
+            <Button Content="Test No Partial" Click="TestNoPartial_Click" Width="130"/>
+            <Button Content="Partial w/Desc" Click="TestPartialDesc_Click" Width="130"/>
+            <Button Content="Mark as partial" Click="MarkPartialDesc_Click" Width="130"/>
+            <Button Content="Partial dsc no title" Click="TestPartialNotTitle_Click" Width="130"/>
+        </WrapPanel>
+        <DataGrid Grid.Row="1" AutoGenerateColumns="False" 
+                  HorizontalAlignment="Stretch" 
+                  Margin="5" 
+                  Name="dataGrid1" VerticalAlignment="Stretch" >
+            <DataGrid.Columns>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Grid Height="35">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="220"/>
+                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="30"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Content="Delete" Margin="5" Click="MagicButton_Click"/>
+                                <Grid Grid.Column="1" Width="200" Height="35">
+                                <Canvas Grid.Column="1" Width="200" Height="35">
+                                    <Rectangle Width="{Binding ReduxProgWidth}" ToolTip="{Binding ReduxBarTip}" Canvas.Top="5" Height="10" Canvas.Left="{Binding ReduxProgOffset}" Fill="#FFFCDE4D"/>
+                                    <Rectangle Width="{Binding PipsProgWidth}" ToolTip="{Binding PipsBarTip}" Canvas.Top="20" Height="10" Canvas.Left="{Binding PipsProgOffset}" Fill="#FFA0CADB"/>
+                                    </Canvas>
+                                </Grid>
+                                <Grid Grid.Column="2">
+                                    <Ellipse Fill="Red" Visibility="{Binding Converter={StaticResource BoolVisibilityConverter},ConverterParameter=invert,Path=IsPartialTitleMatch}" Margin="2"/>
+                                    <Ellipse Fill="Green" Visibility="{Binding Converter={StaticResource BoolVisibilityConverter},Path=IsPartialTitleMatch}" Margin="2"/>
+                                </Grid>
+                                <Grid Grid.Column="3">
+                                    <Ellipse Fill="Red" Visibility="{Binding Converter={StaticResource BoolVisibilityConverter},ConverterParameter=invert,Path=IsPartialMatchWithDescription}" Margin="2"/>
+                                    <Ellipse Fill="Green" Visibility="{Binding Converter={StaticResource BoolVisibilityConverter},Path=IsPartialMatchWithDescription}" Margin="2"/>
+                                </Grid>
+                            </Grid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridCheckBoxColumn Header="?"
+                                        Width="SizeToCells"
+                                        Binding="{Binding ReduxToProgramme.ischecked}"/>
+                <DataGridCheckBoxColumn Header="Sched"
+                                        Width="SizeToHeader"
+                                        Binding="{Binding ReduxToProgramme.start_match}"/>
+                <DataGridCheckBoxColumn Header="Dur"
+                                        Width="SizeToHeader"
+                                        Binding="{Binding ReduxToProgramme.duration_match}"/>
+                <DataGridCheckBoxColumn Header="Title"
+                                        Width="SizeToHeader"
+                                        Binding="{Binding ReduxToProgramme.title_match}"/>
+                <DataGridCheckBoxColumn Header="Partial"
+                                        Width="SizeToHeader"
+                                        Binding="{Binding ReduxToProgramme.partial_match}"/>
+                <DataGridTextColumn Header="ID" 
+                                    Binding="{Binding ReduxItem.id}" 
+                                    Width="SizeToCells"/>
+                <DataGridTextColumn Header="Programme Name" 
+                                    Binding="{Binding ReduxItem.programme_name}" 
+                                    Width="SizeToCells"/>
+                <DataGridTextColumn Header="Pips name"
+                                        Width="SizeToCells"
+                                        Binding="{Binding Programme.display_title}"/>
+                <DataGridTextColumn Header="Pid"
+                                        Width="SizeToCells"
+                                        Binding="{Binding Programme.pid}"/>
+                <DataGridTextColumn Header="Description" 
+                                    Binding="{Binding ReduxItem.short_description}" 
+                                    Width="200"/>
+                <DataGridTextColumn Header="episode"
+                                    Binding="{Binding Programme.display_subtitle}"
+                                    Width="SizeToCells"/>
+                <DataGridTextColumn Header="Pips Description" 
+                                    Binding="{Binding Programme.description}" 
+                                    Width="200"/>
+
+                <DataGridTextColumn Header="Air date"
+                                    Binding="{Binding ReduxItem.aired}"
+                                    Width="SizeToCells"/>
+                <DataGridTextColumn Header="Duration" 
+                                    Binding="{Binding Duration}" 
+                                    Width="SizeToCells"/>
+                <DataGridTextColumn Header="Pips duration" 
+                                    Binding="{Binding Programme.duration}" 
+                                    Width="SizeToCells"/>
+                <DataGridTextColumn Header="Start" 
+                                    Binding="{Binding Programme.start_gmt}" 
+                                    Width="SizeToCells"/>
+                <DataGridTextColumn Header="End" 
+                                    Binding="{Binding Programme.end_gmt}" 
+                                    Width="SizeToCells"/>
+                <DataGridTextColumn Header="Service" 
+                                    Binding="{Binding ServiceName}" 
+                                    Width="SizeToCells"/>
+                <DataGridTextColumn Header="DiskReference"
+                                    Binding="{Binding ReduxItem.disk_reference}"
+                                    Width="SizeToCells"/>
+                <DataGridTextColumn Header="ProgrammeCrid"
+                                    Binding="{Binding ReduxItem.programme_crid}"
+                                    Width="SizeToCells"/>
+                <DataGridTextColumn Header="SeriesCrid"
+                                    Binding="{Binding ReduxItem.series_crid}"
+                                    Width="SizeToCells"/>
+            </DataGrid.Columns>
+            <DataGrid.RowDetailsTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <ScrollViewer MaxHeight="150">
+                            <TextBox Text="{Binding Matched, Mode=OneWay}"/>
+                        </ScrollViewer>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal">
+                            <TextBlock Margin="5" ><Hyperlink Click="Navigate_Url" NavigateUri="{Binding ProgrammesUrl}"><TextBlock Text="Xml Data"/></Hyperlink></TextBlock>
+                            <TextBlock Margin="5" ><Hyperlink Click="Navigate_Url" NavigateUri="{Binding ProgrammesUrlHtml}"><TextBlock Text="Page Data"/></Hyperlink></TextBlock>
+                            <TextBlock Margin="5" ><Hyperlink Click="Navigate_Url" NavigateUri="{Binding ProgrammesUrlRedux}"><TextBlock Text="Redux"/></Hyperlink></TextBlock>
+                            <Button Content="Schedule" Width="70" Margin="4" Click="ShowSchedule_Click"/>
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </DataGrid.RowDetailsTemplate>
+        </DataGrid>
+
+    </Grid>
+</Window>

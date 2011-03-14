@@ -1,0 +1,122 @@
+﻿<Window x:Class="MatchRedux.MatchedSchedules"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:MatchRedux"
+        Title="MatchedSchedules" Height="708" Width="536">
+    <Window.DataContext>
+        <local:MatchedSchedulesViewModel/>
+    </Window.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal">
+            <DatePicker x:Name="datePicker"
+                    Margin="5" 
+                    HorizontalAlignment="Left" 
+                    VerticalAlignment="Top"
+                    SelectedDate="{Binding Path=Date, Mode=TwoWay}"/>
+            <TextBlock FontWeight="Bold" FontSize="16" FontFamily="Arial" Text="{Binding Path=ServiceName}"/>
+            <ComboBox Width="90" Margin="4" SelectedValue="{Binding ServiceID, Mode=TwoWay}" ItemsSource="{Binding Path=ServiceList}" SelectedValuePath="Id" DisplayMemberPath="Name" />
+            <TextBlock Margin="5" ><Hyperlink Click="Navigate_Url" NavigateUri="{Binding PipsUrl, Mode=OneWay}"><TextBlock Text="Pips schedule page"/></Hyperlink></TextBlock>
+        </StackPanel>
+        
+        <ScrollViewer Grid.Row="1">
+            <Canvas Height="7200">
+                <ItemsControl
+                      x:Name="reduxProgrammeList" ItemsSource="{Binding Path=ReduxItems}">
+            <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Canvas>
+                            <Grid Canvas.Top="{Binding ReduxTop}" Canvas.Left="30" Width="150" Height="{Binding ReduxHeight}">
+                                <Border CornerRadius="8" BorderThickness="2" BorderBrush="Black"
+                                        MouseUp="ReduxClicked"
+                                        Background="{Binding ReduxBackground}" ToolTip="{Binding ReduxTooltip}">
+                                    <Grid Margin="4">
+                                        <StackPanel>
+                                            <TextBlock FontWeight="Bold" Text="{Binding ReduxViewModel.ReduxItem.ProgrammeName}" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding ReduxViewModel.ReduxItem.ShortDescription}" Margin="0,4" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding ReduxViewModel.ReduxItem.Aired}" Margin="0,4" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding ReduxViewModel.Duration}" Margin="0,4" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Canvas>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+            <ItemsControl Height="7200" Canvas.Left="250"
+                          x:Name="pipsProgrammeList" ItemsSource="{Binding Path=PipsItems}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Canvas>
+                            <Grid Canvas.Top="{Binding PipsTop}" Canvas.Left="30" Width="150" Height="{Binding PipsHeight}">
+                                <Border CornerRadius="8" 
+                                        ToolTip="{Binding PipsTooltip}"
+                                        MouseUp="PipsClicked"
+                                        BorderThickness="2" BorderBrush="Black" Background="{Binding PipsBackground}">
+                                    <Grid Margin="4">
+                                        <StackPanel>
+                                            <TextBlock FontWeight="Bold" Text="{Binding ReduxViewModel.Programme.DisplayTitle}" TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding ReduxViewModel.Programme.DisplaySubtitle}" TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding ReduxViewModel.Programme.Title}" TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding ReduxViewModel.Programme.Description}" Margin="0,4" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding ReduxViewModel.Programme.StartGmt}" Margin="0,4" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding ReduxViewModel.PipsDuration}" Margin="0,4" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Canvas>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                <ItemsControl Height="7200" x:Name="joinProgrammeList" ItemsSource="{Binding Path=JoinItems}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Canvas >
+                                <Canvas Canvas.Left="180" 
+                                         Canvas.Top="{Binding ReduxCentreY}">
+                                <Ellipse Margin="-6,-6,0,0"
+                                         StrokeThickness="1"
+                                         Stroke="Black"
+                                         Width="12" 
+                                         Height="12" 
+                                         />
+                                </Canvas>
+                                <Canvas Canvas.Left="280" 
+                                         Canvas.Top="{Binding PipsCentreY}">
+                                    <Ellipse StrokeThickness="1"  Margin="-6,-6,0,0"
+                                         Stroke="Black"
+                                         Width="12" 
+                                         Height="12" 
+                                         />
+                            </Canvas>
+                                <Line Stroke="Black" StrokeThickness="2"
+                                      X1="180" Y1="{Binding ReduxCentreY}"
+                                      X2="280" Y2="{Binding PipsCentreY}"/>
+                                </Canvas>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </Canvas>
+        </ScrollViewer>
+    </Grid>
+</Window>
