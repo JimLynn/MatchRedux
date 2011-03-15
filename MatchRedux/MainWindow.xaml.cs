@@ -569,6 +569,12 @@ namespace MatchRedux
 				}
 			}
 		}
+
+        private void TestDbConnection(object sender, RoutedEventArgs e)
+        {
+            var ctx = new ReduxEntities();
+            var titles = ctx.redux_items.Take(50).ToList();
+        }
 	}
 
 	internal class PidItem
