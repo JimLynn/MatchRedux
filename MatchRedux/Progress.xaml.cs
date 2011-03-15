@@ -61,6 +61,8 @@ namespace MatchRedux
 	public interface IProgress
 	{
 		bool IsCancelled { get; set; }
+		void WriteLine(string str, params object[] objs);
+
 	}
 
 }

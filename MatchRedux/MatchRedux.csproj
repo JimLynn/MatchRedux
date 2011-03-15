@@ -73,12 +73,14 @@
     <Compile Include="DayScan.xaml.cs">
       <DependentUpon>DayScan.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Fetcher.cs" />
     <Compile Include="FetchIon.xaml.cs">
       <DependentUpon>FetchIon.xaml</DependentUpon>
     </Compile>
     <Compile Include="FindGaps.xaml.cs">
       <DependentUpon>FindGaps.xaml</DependentUpon>
     </Compile>
+    <Compile Include="IThumbnail.cs" />
     <Compile Include="LinqElementHelper.cs" />
     <Compile Include="MatchedSchedules.xaml.cs">
       <DependentUpon>MatchedSchedules.xaml</DependentUpon>

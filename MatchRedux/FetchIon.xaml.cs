@@ -294,5 +294,15 @@ namespace MatchRedux
 				PropertyChanged(this, new PropertyChangedEventArgs(property));
 			}
 		}
+
+		#region IProgress Members
+
+
+		public void WriteLine(string str, params object[] objs)
+		{
+			throw new NotImplementedException();
+		}
+
+		#endregion
 	}
 }

@@ -540,6 +540,35 @@ namespace MatchRedux
 				//context.SaveChanges();
 			}
 		}
+
+		private async void GetPipsForNewReduxData(object sender, RoutedEventArgs e)
+		{
+			Thumbnail thumbnail = new Thumbnail();
+			thumbnail.Show();
+			Progress progress = new Progress();
+			progress.Show();
+			var itemStore = new ReduxEntities();
+			var notmatched = (from r in itemStore.redux_items
+							  from rp in itemStore.redux_to_pips
+							  where r.id == rp.redux_id && rp.pips_id == 0
+							  select r.aired).ToList().Select(d=>d.Date).Distinct().OrderBy(d => d).ToList();
+
+			Fetcher fetcher = new Fetcher();
+
+			notmatched = notmatched.Where(d => d >= new DateTime(2008, 01, 17)).ToList();
+			
+			var earliest = notmatched.First();	//itemStore.redux_items.Min(r => r.aired).Date;
+
+			var latest = notmatched.Last();		//itemStore.redux_items.Max(r => r.aired).Date;
+			foreach (DateTime dt in notmatched)
+			{
+				await fetcher.GetDayScheduleAsync(dt, progress, thumbnail);
+				if (progress.IsCancelled)
+				{
+					break;
+				}
+			}
+		}
 	}
 
 	internal class PidItem

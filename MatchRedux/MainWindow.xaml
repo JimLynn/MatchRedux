@@ -16,7 +16,7 @@
             <Button Content="Images" Click="Images_Click"/>
             <Button Content="TreeMap" Click="TreeMap_Click"/>
             <Button Content="Fetch Ion" Click="FetchIon_Click"/>
-            <Button Content="New Progs" Click="IngestNewReduxData" />
+            <Button Content="New Progs" Click="GetPipsForNewReduxData" />
             <Label x:Name="label" Width="200"/>
         </StackPanel>
         <DataGrid x:Name="dataGrid" Grid.Row="1"/>

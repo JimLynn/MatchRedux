@@ -19,7 +19,7 @@ namespace MatchRedux
 	/// <summary>
 	/// Interaction logic for Thumbnail.xaml
 	/// </summary>
-	public partial class Thumbnail : Window, INotifyPropertyChanged
+	public partial class Thumbnail : Window, INotifyPropertyChanged, IThumbnail
 	{
 		public Thumbnail()
 		{
