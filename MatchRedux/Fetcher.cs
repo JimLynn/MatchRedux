@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using System.Net;
+using System.Diagnostics;
 
 namespace MatchRedux
 {
@@ -13,6 +14,11 @@ namespace MatchRedux
 	{
 		public async Task GetDayScheduleAsync(DateTime date, IProgress progress, IThumbnail thumbnail)
 		{
+            if (progress.IsCancelled)
+            {
+                return;
+            }
+
 			var reduxItems = new ReduxEntities();
 			Services services = new Services();
 			DateTime dayStart = date.Date;
@@ -89,25 +95,30 @@ namespace MatchRedux
 
 			List<pips_programmes> newProgrammes = new List<pips_programmes>();
 
+            List<Task> pendingTasks = new List<Task>();
+
 			foreach (var prog in programmes)
 			{
-				if (already.Any(p => p.service_id == prog.service_id && p.start_time == prog.start_time) == false)
+                if (progress.IsCancelled)
+                {
+                    break;
+                }
+                if (already.Any(p => p.service_id == prog.service_id && p.start_time == prog.start_time) == false)
 				{
 					reduxItems.pips_programmes.AddObject(prog);
+			        reduxItems.SaveChanges();
 					newProgrammes.Add(prog);
+				    progress.WriteLine("Updating {0} on {1}", prog.display_title, prog.start_gmt);
+                    pendingTasks.Add(AddGenresAsync(prog.pid, prog.id, progress, thumbnail));
+                    if (pendingTasks.Count >= 12)
+                    {
+                        await TaskEx.WhenAll(pendingTasks);
+                        pendingTasks.Clear();
+                    }
 				}
 			}
 			//reduxItems.Scanned.Add(new Scanned() { DateScanned = dayStart });
-			reduxItems.SaveChanges();
-			DateTime timerend = DateTime.Now;
 
-			foreach (var newprog in newProgrammes)
-			{
-				progress.WriteLine("Updating {0} on {1}", newprog.display_title, newprog.start_gmt);
-				await AddGenresAsync(newprog.pid, newprog.id, progress, thumbnail);
-			}
-
-			progress.WriteLine("took " + (timerend - timerstart).ToString());
 			//}
 
 		}
@@ -161,35 +172,8 @@ namespace MatchRedux
 					throw;
 				}
 				FetchContributors(ionPage, data, pid);
-				try
-				{
-					data.SaveChanges();
-				}
-				catch (Exception exp)
-				{
-					var msg3 = exp.Message;
-					throw;
-				}
 				FetchTags(ionPage, data, pid);
-				try
-				{
-					data.SaveChanges();
-				}
-				catch (Exception exp)
-				{
-					var msg = exp.Message;
-					throw;
-				}
 				FetchCategories(ionPage, data, pid);
-				try
-				{
-					data.SaveChanges();
-				}
-				catch (Exception exp)
-				{
-					var msg1 = exp.Message;
-					throw;
-				}
 			}
 			catch (WebException)
 			{
@@ -206,69 +190,70 @@ namespace MatchRedux
 						   catkey = cat.Attribute("key").Value,
 						   title = cat.Element("title").Value
 					   };
-			await Task.Factory.StartNew(() =>
-			{
+                var ctx = new ReduxEntities();
 				foreach (var c in cats)
 				{
-					data.categories.AddObject(c);
+                    Debug.WriteLine("{0} {1} {2} {3}", c.catkey, c.pid, c.type, c.title);
+					//data.categories.AddObject(c);
+                    ctx.categories.AddObject(c);
 				}
-			});
+                ctx.SaveChanges();
 
 		}
 
-		private async void FetchTags(XElement episode, ReduxEntities data, string pid)
-		{
-			XNamespace ion = "http://bbc.co.uk/2008/iplayer/ion";
-			var tags = episode.Elements(ion + "blocklist")
-					.Elements(ion + "episode_detail")
-					.Elements(ion + "tag_schemes")
-					.Elements(ion + "tag_scheme")
-					.Elements(ion + "tags")
-					.Elements(ion + "tag");
-			await Task.Factory.StartNew(() =>
-			{
-				foreach (var tag in tags)
-				{
-					var tg = new tag
-					{
-						tag_id = tag.Element(ion + "id").Value,
-						name = tag.Element(ion + "name").Value,
-						value = tag.Element(ion + "value").Value,
-						pid = pid
-					};
-					data.AddObject("tags", tg);
-				}
-			});
+        private async void FetchTags(XElement episode, ReduxEntities data, string pid)
+        {
+            XNamespace ion = "http://bbc.co.uk/2008/iplayer/ion";
+            var tags = episode.Elements(ion + "blocklist")
+                    .Elements(ion + "episode_detail")
+                    .Elements(ion + "tag_schemes")
+                    .Elements(ion + "tag_scheme")
+                    .Elements(ion + "tags")
+                    .Elements(ion + "tag");
+            var ctx = new ReduxEntities();
+            foreach (var tag in tags)
+            {
+                var tg = new tag
+                {
+                    tag_id = tag.Element(ion + "id").Value,
+                    name = tag.Element(ion + "name").Value,
+                    value = tag.Element(ion + "value").Value,
+                    pid = pid
+                };
+                Debug.WriteLine("{0} {1} {2} {3}", tg.name, tg.pid, tg.tag_id, tg.value);
+                ctx.tags.AddObject(tg);
+            }
+            ctx.SaveChanges();
 
-		}
+        }
 
-		private async void FetchContributors(XElement episode, ReduxEntities data, string pid)
-		{
-			XNamespace ion = "http://bbc.co.uk/2008/iplayer/ion";
-			var contributors = episode.Elements(ion + "blocklist")
-								.Elements(ion + "episode_detail")
-								.Elements(ion + "contributors")
-								.Elements(ion + "contributor");
-			await Task.Factory.StartNew(() =>
-			{
-				foreach (var contributor in contributors)
-				{
-					var ct = new contributor
-					{
-						character_name = contributor.Element(ion + "character_name").Value,
-						family_name = contributor.Element(ion + "family_name").Value,
-						given_name = contributor.Element(ion + "given_name").Value,
-						role = contributor.Element(ion + "role").Value,
-						role_name = contributor.Element(ion + "role_name").Value,
-						type = contributor.Element(ion + "type").Value,
-						contributor_id = Convert.ToInt32(contributor.Element(ion + "id").Value),
-						pid = pid
-					};
-					data.AddObject("contributors", ct);
-				}
-				//data.SaveChanges();
-			});
-		}
+        private async void FetchContributors(XElement episode, ReduxEntities data, string pid)
+        {
+            XNamespace ion = "http://bbc.co.uk/2008/iplayer/ion";
+            var contributors = episode.Elements(ion + "blocklist")
+                                .Elements(ion + "episode_detail")
+                                .Elements(ion + "contributors")
+                                .Elements(ion + "contributor");
+            var ctx = new ReduxEntities();
+            foreach (var contributor in contributors)
+            {
+                var ct = new contributor
+                {
+                    character_name = contributor.Element(ion + "character_name").Value,
+                    family_name = contributor.Element(ion + "family_name").Value,
+                    given_name = contributor.Element(ion + "given_name").Value,
+                    role = contributor.Element(ion + "role").Value,
+                    role_name = contributor.Element(ion + "role_name").Value,
+                    type = contributor.Element(ion + "type").Value,
+                    contributor_id = Convert.ToInt32(contributor.Element(ion + "id").Value),
+                    pid = pid
+                };
+                Debug.WriteLine("{0} {1} {2} {3} {4} {5} {6}", ct.character_name, ct.contributor_id, ct.family_name, ct.given_name, ct.role, ct.role_name, ct.type);
+                ctx.contributors.AddObject(ct);
+            }
+            ctx.SaveChanges();
+            //data.SaveChanges();
+        }
 
 
 

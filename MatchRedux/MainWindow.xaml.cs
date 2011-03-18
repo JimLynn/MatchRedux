@@ -555,7 +555,7 @@ namespace MatchRedux
 
 			Fetcher fetcher = new Fetcher();
 
-			notmatched = notmatched.Where(d => d >= new DateTime(2010, 06, 01)).ToList();
+			notmatched = notmatched.Where(d => d >= new DateTime(2010, 08, 10)).ToList();
 			
 			var earliest = notmatched.First();	//itemStore.redux_items.Min(r => r.aired).Date;
 
