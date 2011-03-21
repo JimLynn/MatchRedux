@@ -123,7 +123,7 @@ namespace MatchRedux
 
 		}
 
-		private async Task AddGenresAsync(string pid, int pips_id, IProgress progress, IThumbnail thumbnail)
+		public async Task AddGenresAsync(string pid, int pips_id, IProgress progress, IThumbnail thumbnail)
 		{
 			//progress.WriteLine("Start Fetching for {0}", pid);
 			if (progress.IsCancelled)

@@ -17,7 +17,7 @@
             <Button Content="TreeMap" Click="TreeMap_Click"/>
             <Button Content="Fetch Ion" Click="FetchIon_Click"/>
             <Button Content="New Progs" Click="GetPipsForNewReduxData" />
-            <Button Content="TestConn" Click="TestDbConnection"/>
+            <Button Content="Missing Genres" Click="MissingGenres" Width="115" />
             <Label x:Name="label" Width="200"/>
         </StackPanel>
         <DataGrid x:Name="dataGrid" Grid.Row="1"/>

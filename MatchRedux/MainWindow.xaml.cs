@@ -555,7 +555,7 @@ namespace MatchRedux
 
 			Fetcher fetcher = new Fetcher();
 
-			notmatched = notmatched.Where(d => d >= new DateTime(2010, 08, 10)).ToList();
+			notmatched = notmatched.Where(d => d >= new DateTime(2011, 02, 04)).ToList();
 			
 			var earliest = notmatched.First();	//itemStore.redux_items.Min(r => r.aired).Date;
 
@@ -574,6 +574,44 @@ namespace MatchRedux
         {
             var ctx = new ReduxEntities();
             var titles = ctx.redux_items.Take(50).ToList();
+        }
+
+        private async void MissingGenres(object sender, RoutedEventArgs e)
+        {
+            Thumbnail thumbnail = new Thumbnail();
+            thumbnail.Show();
+            Progress progress = new Progress();
+            progress.Show();
+            var itemStore = new ReduxEntities();
+            var nogenres = from p in itemStore.pips_programmes
+                           join g in itemStore.genres on p.id equals g.pips_id into joined
+                           from j in joined.DefaultIfEmpty()
+                           where j == null
+                           select p;
+            var ng = nogenres.ToList();
+            Random rnd = new Random();
+            for (int i = ng.Count; i == 0; i--)
+            {
+                int pos = rnd.Next(i);
+                pips_programmes tmp = ng[i - 1];
+                ng[i - 1] = ng[pos];
+                ng[pos] = tmp;
+            }
+            List<Task> tasks = new List<Task>();
+            Fetcher fetcher = new Fetcher();
+            foreach (var prog in ng)
+            {
+                tasks.Add(fetcher.AddGenresAsync(prog.pid, prog.id, progress, thumbnail));
+                if (tasks.Count >= 16)
+                {
+                    await TaskEx.WhenAll(tasks);
+                    tasks.Clear();
+                    if (progress.IsCancelled)
+                    {
+                        break;
+                    }
+                }
+            }
         }
 	}
 
