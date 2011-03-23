@@ -17,6 +17,8 @@ using System.Xml.XPath;
 using System.Net;
 using System.Diagnostics;
 using System.Xml;
+using System.IO;
+using Path = System.IO.Path;
 
 namespace MatchRedux
 {
@@ -613,6 +615,77 @@ namespace MatchRedux
                 }
             }
         }
+
+        private async void CheckTranscripts(object sender, RoutedEventArgs e)
+        {
+            Progress progress = new Progress();
+            progress.Show();
+            EnsureLoginToken();
+
+            var transcripts = Directory.GetFiles(@"C:\Users\James\Downloads\BBC Batch 1A  - 11th March");
+            foreach (var path in transcripts)
+            {
+                string diskref = Path.GetFileNameWithoutExtension(path);
+                string url = string.Format("http://api.bbcredux.com/content/{0}/data?token={1}", diskref, loginToken);
+                try
+                {
+                    XElement data = await GetXml(url);
+                    progress.WriteLine("{0} succeeded", url);
+                }
+                catch (WebException)
+                {
+                    progress.WriteLine("{0} failed", url);
+                }
+            }
+        }
+
+        private async Task<XElement> GetXml(string url)
+        {
+            WebClient client = new WebClient();
+            var xml = await client.DownloadStringTaskAsync(url);
+            return XElement.Parse(xml);
+        }
+
+
+
+        private string loginToken = null;
+
+        private async Task EnsureLoginToken()
+        {
+            if (loginToken == null)
+            {
+                WebClient login = new WebClient();
+                string logged = await login.DownloadStringTaskAsync("http://api.bbcredux.com/user/login?username=jimlynn&password=bakedbeans");
+
+                XElement tokenresult = XElement.Parse(logged);
+                //OutputLine(tokenresult.ToString());
+                /*
+                 * <response>
+                      <user>
+                        <token>2228599-j8Je7m7b21tObsKTawkHAzz20zxPkLqf</token>
+                        <id>2215</id>
+                        <username>jimlynn</username>
+                        <email>jim.lynn@bbc.co.uk</email>
+                        <first_name>Jim</first_name>
+                        <last_name>Lynn</last_name>
+                        <admin>0</admin>
+                        <bbc_content>1</bbc_content>
+                        <fta_content>0</fta_content>
+                      </user>
+                    </response>
+                 */
+
+                string t = tokenresult.XPathSelectElement("/user/token").Value;
+                loginToken = t;
+            }
+        }
+
+        private void CheckTranscriptsEx(object sender, RoutedEventArgs e)
+        {
+            CheckTranscripts win = new CheckTranscripts();
+            win.Show();
+        }
+
 	}
 
 	internal class PidItem

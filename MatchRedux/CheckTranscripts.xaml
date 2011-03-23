@@ -1,0 +1,44 @@
+﻿<Window x:Class="MatchRedux.CheckTranscripts"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="CheckTranscripts" Height="300" Width="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <ListBox x:Name="listbox" ItemsSource="{Binding Items}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Rectangle Grid.RowSpan="3" Grid.ColumnSpan="2" Fill="Bisque" Visibility="{Binding VisibleIfExcelFail}"/>
+                        <Rectangle Fill="LightGray" Grid.Column="0" Width="74" Height="42" Grid.RowSpan="3"/>
+                        <Image Source="{Binding ReduxThumbnail}" Grid.Column="0" Visibility="{Binding VisibilityValid}" Grid.RowSpan="3"/>
+                        <TextBlock Text="{Binding Title}" Grid.Column="1" Margin="5" Visibility="{Binding VisibilityValid}"/>
+                        <TextBlock Text="{Binding Description}" Grid.Column="1" Grid.Row="1" Margin="5" Visibility="{Binding VisibilityValid}"/>
+                        <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="2">
+                            <TextBlock Text="{Binding Diskref}" Margin="5" />
+                            <TextBlock Text="{Binding ItemState}" Margin="5"/> 
+                            <TextBlock Text="{Binding CheckingState}" Margin="5"/>
+                            <Button Command="{Binding LaunchExcel}" Content="Excel" />
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Content="Save Report" Width="90" 
+                Click="SaveReport"
+                Height="24" 
+                IsEnabled="{Binding IsReportReady}"
+                Grid.Row="1" Margin="5"/>
+    </Grid>
+</Window>

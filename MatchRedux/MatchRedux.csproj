@@ -39,6 +39,12 @@
     <Reference Include="AsyncCtpLibrary">
       <HintPath>..\..\..\Microsoft Visual Studio Async CTP\Samples\AsyncCtpLibrary.dll</HintPath>
     </Reference>
+    <Reference Include="Excel">
+      <HintPath>..\..\..\..\Downloads\ExcelDataReader_2.0.1.0\ExcelDataReader_2.0.1.0\Excel.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>..\..\..\..\Downloads\ExcelDataReader_2.0.1.0\ExcelDataReader_2.0.1.0\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Data.Entity.CTP">
       <HintPath>..\packages\EFCTP4.1.0\lib\Microsoft.Data.Entity.CTP.dll</HintPath>
@@ -69,6 +75,9 @@
     <Compile Include="AlternatingTreeMapTemplateSelector.cs" />
     <Compile Include="Chart.xaml.cs">
       <DependentUpon>Chart.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CheckTranscripts.xaml.cs">
+      <DependentUpon>CheckTranscripts.xaml</DependentUpon>
     </Compile>
     <Compile Include="DayScan.xaml.cs">
       <DependentUpon>DayScan.xaml</DependentUpon>
@@ -106,6 +115,10 @@
       <DependentUpon>Thumbnail.xaml</DependentUpon>
     </Compile>
     <Page Include="Chart.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CheckTranscripts.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

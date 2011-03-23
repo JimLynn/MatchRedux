@@ -418,7 +418,7 @@ namespace MatchRedux
 						 join rp in reduxItems.redux_to_pips on r.id equals rp.redux_id
 						 where rp.pips_id == 0
 						 select new { ReduxItem = r, ReduxToProgramme = rp }).AsEnumerable().Select(it => new ReduxViewModel(it.ReduxItem, null, it.ReduxToProgramme)).ToList();
-			var excelApp = new Excel.Application();
+			var excelApp = new Microsoft.Office.Interop.Excel.Application();
 			// Make the object visible.
 			excelApp.Visible = true;
 			excelApp.ErrorCheckingOptions.NumberAsText = false;
@@ -429,7 +429,7 @@ namespace MatchRedux
 			excelApp.Workbooks.Add();
 
 			// This example uses a single workSheet. 
-			Excel._Worksheet workSheet = excelApp.ActiveSheet;
+			Microsoft.Office.Interop.Excel._Worksheet workSheet = excelApp.ActiveSheet;
 
 			// Earlier versions of C# require explicit casting.
 			//Excel._Worksheet workSheet = (Excel.Worksheet)excelApp.ActiveSheet;
