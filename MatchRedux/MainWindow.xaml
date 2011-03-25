@@ -7,7 +7,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="0">
+        <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="0">
             <Button Content="Go" Click="GetData"/>
             <Button Content="Go Async" Click="GetDataAsync"/>
             <Button Content="Day Scan" Click="DayScan_Click"/>
@@ -19,8 +19,9 @@
             <Button Content="New Progs" Click="GetPipsForNewReduxData" />
             <Button Content="Missing Genres" Click="MissingGenres" Width="115" />
             <Button Content="Check Transcripts" Click="CheckTranscriptsEx" Width="128" />
-            <Label x:Name="label" Width="200"/>
-        </StackPanel>
+            <Button Content="TestThumbnails" Click="TestThumbnails" Width="116" />
+            <Label x:Name="label" Width="200" Height="24" Margin="5"/>
+        </WrapPanel>
         <DataGrid x:Name="dataGrid" Grid.Row="1"/>
     </Grid>
 </Window>

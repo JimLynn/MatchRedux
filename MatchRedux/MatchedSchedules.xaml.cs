@@ -105,15 +105,46 @@ namespace MatchRedux
 		{
 			Process.Start(((Hyperlink)sender).NavigateUri.ToString());
 		}
+
+        private void JoinEm(object sender, RoutedEventArgs e)
+        {
+            viewModel.JoinUnjoined();
+        }
 	}
 
-	public class ScheduleViewModel
+	public class ScheduleViewModel : ViewModelBase
 	{
 		public ReduxViewModel ReduxViewModel { get; set; }
 		public DateTime DayBase { get; set; }
 
-		public bool IsReduxMatched { get; set; }
-		public bool IsPipsMatched { get; set; }
+        private bool _isReduxMatched;
+        public bool IsReduxMatched
+        {
+            get
+            {
+                return _isReduxMatched;
+            }
+            set
+            {
+                _isReduxMatched = value;
+                FireChanged("IsReduxMatched");
+                FireChanged("ReduxBackground");
+            }
+        }
+
+        private bool _isPipsMatched; 
+        public bool IsPipsMatched {
+            get
+            {
+                return _isPipsMatched;
+            }
+            set
+            {
+                _isPipsMatched = value;
+                FireChanged("IsPipsMatched");
+                FireChanged("PipsBackground");
+            }
+        }
 
 		public ScheduleViewModel(ReduxViewModel rvm, DateTime dayBase)
 		{
@@ -257,6 +288,31 @@ namespace MatchRedux
 	public class MatchedSchedulesViewModel : INotifyPropertyChanged
 	{
 		private static Services services = new Services();
+
+        public void JoinUnjoined()
+        {
+            var notjoined = ReduxItems.Where(r => r.IsReduxMatched == false).ToList();
+            foreach (var redux in notjoined)
+            {
+                var matches = PipsItems.Where(p => false == (p.ReduxViewModel.Programme.end_gmt < redux.ReduxViewModel.ReduxItem.aired ||
+                                            p.ReduxViewModel.Programme.start_gmt > redux.ReduxViewModel.ReduxItem.aired.AddSeconds(redux.ReduxViewModel.ReduxItem.duration)));
+                //var match = PipsItems.FirstOrDefault(r => r.ReduxViewModel.Programme.start_gmt == redux.ReduxViewModel.ReduxItem.aired);
+                //if (match != null)
+                foreach (var match in matches)
+                {
+                    JoinItems = JoinItems.Union(new ScheduleViewModel[] 
+                        { 
+                            new ScheduleViewModel(
+                                new ReduxViewModel(
+                                    redux.ReduxViewModel.ReduxItem, 
+                                    match.ReduxViewModel.Programme, 
+                                    new redux_to_pips { redux_id = redux.ReduxViewModel.ReduxItem.id, pips_id = match.ReduxViewModel.Programme.id}
+                                    ), this.Date) });
+                    //new ScheduleViewModel(new ReduxViewModel(i.R, i.P, i.RP), viewModel.Date);
+                    redux.IsPipsMatched = true;
+                }
+            }
+        }
 
 		private IEnumerable<ScheduleViewModel> _reduxItems;
 		public IEnumerable<ScheduleViewModel> ReduxItems

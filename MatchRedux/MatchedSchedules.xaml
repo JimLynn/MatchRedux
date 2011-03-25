@@ -20,6 +20,7 @@
             <TextBlock FontWeight="Bold" FontSize="16" FontFamily="Arial" Text="{Binding Path=ServiceName}"/>
             <ComboBox Width="90" Margin="4" SelectedValue="{Binding ServiceID, Mode=TwoWay}" ItemsSource="{Binding Path=ServiceList}" SelectedValuePath="Id" DisplayMemberPath="Name" />
             <TextBlock Margin="5" ><Hyperlink Click="Navigate_Url" NavigateUri="{Binding PipsUrl, Mode=OneWay}"><TextBlock Text="Pips schedule page"/></Hyperlink></TextBlock>
+            <Button Height="24" Content="Join em" Width="80" Click="JoinEm"/>
         </StackPanel>
         
         <ScrollViewer Grid.Row="1">

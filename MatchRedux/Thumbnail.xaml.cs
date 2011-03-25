@@ -21,6 +21,8 @@ namespace MatchRedux
 	/// </summary>
 	public partial class Thumbnail : Window, INotifyPropertyChanged, IThumbnail
 	{
+        private Queue<ImageItem> waitingItems = new Queue<ImageItem>();
+
 		public Thumbnail()
 		{
 			InitializeComponent();
@@ -43,16 +45,45 @@ namespace MatchRedux
 				new ImageItem(i32,i32a),
 				new ImageItem(i33,i33a)
 			};
+
+            foreach (var item in images)
+            {
+                item.ReadyForMore += new EventHandler(item_ReadyForMore);
+                waitingItems.Enqueue(item);
+            }
 		}
+
+        Queue<string> urls = new Queue<string>();
+
+        void item_ReadyForMore(object sender, EventArgs e)
+        {
+            ImageItem item = sender as ImageItem;
+            if (urls.Count > 0)
+            {
+                string url = urls.Dequeue();
+                item.SetImage(url);
+            }
+            else
+            {
+                waitingItems.Enqueue(item);
+            }
+        }
 
 		public void ShowImage(string url)
 		{
-			ImageItem item = images.OrderBy(i=>i.UrlCount).First();
+            if (waitingItems.Count > 0)
+            {
+            ImageItem item = waitingItems.Dequeue();
 			if (item == null)
 			{
 				return;
 			}
 			item.SetImage(url);
+            }
+            else
+            {
+                urls.Enqueue(url);
+            }
 		}
 
 		ImageItem[] images;
@@ -76,7 +107,9 @@ namespace MatchRedux
 		public bool IsAlternate { get; set; }
 		private List<string> Urls = new List<string>();
 
-		public int UrlCount
+        public event EventHandler ReadyForMore;
+
+        public int UrlCount
 		{
 			get
 			{
@@ -99,33 +132,15 @@ namespace MatchRedux
 		void Appear_Completed(object sender, EventArgs e)
 		{
 			IsAlternate = !IsAlternate;
-			FetchUrl();
+            if (ReadyForMore != null)
+            {
+                ReadyForMore(this, new EventArgs());
+            }
 		}
 
 		public void SetImage(string url)
 		{
-			Urls.Add(url);
-			if (IsRunning == false)
-			{
-				FetchUrl();
-			}
-		}
-
-		private void FetchUrl()
-		{
-			if (Urls.Count == 0)
-			{
-				IsRunning = false;
-				return;
-			}
 			IsRunning = true;
-			int last = Urls.Count - 1;
-			string url = Urls[last];
-			Urls.RemoveAt(Urls.Count - 1);
-			if (Urls.Count > 200)
-			{
-				Urls.RemoveRange(0, 100);
-			}
 			Image img = Image;
 			Storyboard board = Appear;
 			if (IsAlternate)

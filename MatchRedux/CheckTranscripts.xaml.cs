@@ -29,20 +29,81 @@ namespace MatchRedux
     /// <summary>
     /// Interaction logic for CheckTranscripts.xaml
     /// </summary>
-    public partial class CheckTranscripts : Window, INotifyPropertyChanged
+    public partial class CheckTranscripts : Window
     {
         public CheckTranscripts()
         {
             InitializeComponent();
-            Loaded += new RoutedEventHandler(CheckTranscripts_Loaded);
+        }
+    }
+    public class CheckTranscriptsViewModel : INotifyPropertyChanged
+    {
+        public CheckTranscriptsViewModel()
+        {
+            Initialise();
         }
 
-        private async void CheckTranscripts_Loaded(object sender, RoutedEventArgs e)
+        private async void Initialise()
         {
-            await EnsureLoginToken();
-            ReduxThing.LoginToken = loginToken;
-            DataContext = this;
-            PopulateList();
+            if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
+            {
+                ReduxThing[] data = new ReduxThing[]
+                {
+                    new ReduxThing(true)
+                    { ExcelChecked = true,
+                        Diskref = "5573254790443234884",
+                        ReduxChecked = true,
+                        IsValid = true,
+                        ExcelFail = false,
+                        Description = "RINGSTONE ROUND",
+                        Title = "FUN TIMES",
+                        CheckingState = "Excel Checked OK"
+                    },
+                    new ReduxThing(true)
+                    { ExcelChecked = true,
+                        Diskref = "5573254790443234884",
+                        ReduxChecked = true,
+                        Description = "RINGSTONE ROUND",
+                        Title = "FUN TIMES",
+                        IsValid = false,
+                        ExcelFail = false,
+                        CheckingState = "Excel Checked OK"
+                    },
+                    new ReduxThing(true)
+                    { ExcelChecked = true,
+                        Diskref = "5573254790443234884",
+                        ReduxChecked = false,
+                        Description = "RINGSTONE ROUND",
+                        Title = "FUN TIMES",
+                        IsValid = true,
+                        ExcelFail = true,
+                        CheckingState = "Failed to find header"
+                    },
+                    new ReduxThing(true)
+                    { ExcelChecked = true,
+                        Diskref = "5573254790443234884",
+                        ReduxChecked = false,
+                        Description = "RINGSTONE ROUND",
+                        Title = "FUN TIMES",
+                        IsValid = false,
+                        ExcelFail = true,
+                        CheckingState = "Failed to read excel file"
+                    }
+                };
+
+                foreach (var item in data)
+                {
+                    Items.Add(item);
+                }
+            }
+            else
+            {
+                _saveReport = new RelayCommand(DoSaveReport, CanDoSaveReport);
+                await EnsureLoginToken();
+                ReduxThing.LoginToken = loginToken;
+                //DataContext = this;
+                PopulateList();
+            }
         }
 
         private ObservableCollection<ReduxThing> _items = new ObservableCollection<ReduxThing>();
@@ -75,11 +136,18 @@ namespace MatchRedux
 
         void item_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (Items.Any(i=>i.ReduxChecked == false))
+            var thing = (ReduxThing)sender;
+            if (e.PropertyName == "ExcelChecked" || e.PropertyName == "ReduxChecked")
             {
-                return;
+                if (thing.ReduxChecked && thing.ExcelChecked)
+                {
+                    if (Items.Any(i=>i.ReduxChecked == false))
+                    {
+                        return;
+                    }
+                    IsReportReady = true;
+                }
             }
-            IsReportReady = true;
         }
         private bool _isReportReady = false;
         public bool IsReportReady
@@ -92,6 +160,7 @@ namespace MatchRedux
             {
                 _isReportReady = value;
                 FirePropertyChanged("IsReportReady");
+                _saveReport.RaiseCanExecuteChanged();
             }
         }
         
@@ -138,7 +207,26 @@ namespace MatchRedux
             }
         }
 
-        private void SaveReport(object sender, RoutedEventArgs e)
+        private RelayCommand _saveReport;
+        public RelayCommand SaveReport
+        {
+            get
+            {
+                return _saveReport;
+            }
+            set
+            {
+                _saveReport = value;
+                FirePropertyChanged("SaveReport");
+            }
+        }
+
+        private bool CanDoSaveReport()
+        {
+            return IsReportReady;
+        }
+
+        private void DoSaveReport()
         {
             var app = new MSExcel.Application();
             app.Visible = true;
@@ -176,6 +264,9 @@ namespace MatchRedux
             Diskref = diskref;
             _launchExcel = new RelayCommand(DoLaunchExcel);
             FetchMetadata();
+        }
+        public ReduxThing(bool isDesign)
+        {
         }
 
         private void FetchMetadata()
@@ -330,6 +421,8 @@ namespace MatchRedux
 
                 CheckingState = "Excel is OK";
                 ExcelChecked = true;
+                Title = rows[8][1].ToString();
+                Description = rows[9][1].ToString();
             }
         }
 
@@ -378,6 +471,34 @@ namespace MatchRedux
             }
         }
 
+        public Visibility VisibleIfReduxFail
+        {
+            get
+            {
+                if (IsValid)
+                {
+                    return Visibility.Collapsed;
+                }
+                else
+                {
+                    return Visibility.Visible;
+                }
+            }
+        }
+        public Visibility VisibleIfReduxOk
+        {
+            get
+            {
+                if (IsValid)
+                {
+                    return Visibility.Visible;
+                }
+                else
+                {
+                    return Visibility.Collapsed;
+                }
+            }
+        }
         private bool CheckExcel(DataRowCollection rows, int row, string testValue)
         {
             try

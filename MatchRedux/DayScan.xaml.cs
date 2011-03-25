@@ -72,6 +72,11 @@ namespace MatchRedux
 
 		}
 
+        /// <summary>
+        /// Show all redux items with no matching pips programme
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
 		private void Mismatch_Click(object sender, RoutedEventArgs e)
 		{
 			var items = (from r in reduxItems.redux_items
@@ -128,6 +133,12 @@ namespace MatchRedux
 
 		private delegate void MyDelegate();
 
+        /// <summary>
+        /// Scan's a day's schedule and fetches pips data from /programmes
+        /// DEPRECATED and replaced by the newer code in MainWindow.GetPipsForNewReduxData
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="thumbnail"></param>
 		private void ScanWholeDay(DateTime date, Thumbnail thumbnail)
 		{
 			reduxItems = new ReduxEntities();
@@ -179,9 +190,11 @@ namespace MatchRedux
 								 {
 									 service_id = element.GetAttributeInt("serviceid"),
 									 service_name = services[element.GetAttributeInt("serviceid")].Name,
-									 start_time = broadcast.GetElementDate("start"),
-									 end_time = broadcast.GetElementDate("end"),
-									 duration = broadcast.GetElementInt("duration"),
+									 start_gmt = broadcast.GetElementDate("start"),
+									 end_gmt = broadcast.GetElementDate("end"),
+                                     start_time = broadcast.GetElementDate("start").ToLocalTime(),
+                                     end_time = broadcast.GetElementDate("end").ToLocalTime(),
+                                     duration = broadcast.GetElementInt("duration"),
 									 programme_name = episode.Element("title").Value,
 									 display_title = episode.Element("display_titles").Element("title").Value,
 									 display_subtitle = episode.Element("display_titles").Element("subtitle").Value,
@@ -251,6 +264,11 @@ namespace MatchRedux
 
 		}
 
+        /// <summary>
+        /// DEPRECATED CODE
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
 		private void PartialMatch_Click(object sender, RoutedEventArgs e)
 		{
 			var items = (from r in reduxItems.redux_items
@@ -264,6 +282,11 @@ namespace MatchRedux
 			dataGrid1.ItemsSource = items;
 		}
 
+        /// <summary>
+        /// DEPRECATED CODE
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
 		private void PartialMatchMarkOverlap_Click(object sender, RoutedEventArgs e)
 		{
 			var items = (from r in reduxItems.redux_items
@@ -281,6 +304,11 @@ namespace MatchRedux
 			reduxItems.SaveChanges();
 		}
 
+        /// <summary>
+        /// DEPRECATED CODE
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
 		private void PartialMatchWithTitle_Click(object sender, RoutedEventArgs e)
 		{
 			var items = (from r in reduxItems.redux_items
@@ -325,6 +353,11 @@ namespace MatchRedux
 			}
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
 		private void TestPartial_Click(object sender, RoutedEventArgs e)
 		{
 			var items = reduxItems;
@@ -412,6 +445,11 @@ namespace MatchRedux
 			new MatchedSchedules(rvm.ReduxItem.service_id, rvm.ReduxItem.aired).Show();
 		}
 
+        /// <summary>
+        /// Dumps all the mismatches to Excel
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
 		private void MismatchDump_Click(object sender, RoutedEventArgs e)
 		{
 			var items = (from r in reduxItems.redux_items
@@ -443,21 +481,21 @@ namespace MatchRedux
 			workSheet.Cells[1, "F"] = "Series Crid";
 			workSheet.Cells[1, "G"] = "Disk Reference";
 
-			var row = 1;
-			foreach (var item in items)
-			{
-				row++;
-				workSheet.Cells[row, "A"] = item.ReduxItem.programme_name;
-				workSheet.Cells[row, "B"] = item.ReduxItem.short_description;
-				workSheet.Cells[row, "C"] = item.ReduxItem.aired;
-				workSheet.Cells[row, "D"] = item.ServiceName;
-				workSheet.Cells[row, "E"] = item.ReduxItem.programme_crid;
-				workSheet.Cells[row, "F"] = item.ReduxItem.series_crid;
-				workSheet.Cells[row, "G"].NumberFormat = "@";
-				workSheet.Cells[row, "G"] = item.ReduxItem.disk_reference;
-				workSheet.Columns[1].AutoFit();
-				workSheet.Columns[3].AutoFit();
-			}
+            //var row = 1;
+            //foreach (var item in items)
+            //{
+            //    row++;
+            //    workSheet.Cells[row, "A"] = item.ReduxItem.programme_name;
+            //    workSheet.Cells[row, "B"] = item.ReduxItem.short_description;
+            //    workSheet.Cells[row, "C"] = item.ReduxItem.aired;
+            //    workSheet.Cells[row, "D"] = item.ServiceName;
+            //    workSheet.Cells[row, "E"] = item.ReduxItem.programme_crid;
+            //    workSheet.Cells[row, "F"] = item.ReduxItem.series_crid;
+            //    workSheet.Cells[row, "G"].NumberFormat = "@";
+            //    workSheet.Cells[row, "G"] = item.ReduxItem.disk_reference;
+            //    workSheet.Columns[1].AutoFit();
+            //    workSheet.Columns[3].AutoFit();
+            //}
 
 		}
 	}

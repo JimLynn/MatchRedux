@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using System.Globalization;
 
 namespace MatchRedux
 {
@@ -33,9 +34,19 @@ namespace MatchRedux
 		{
 			return Convert.ToInt32(element.Attribute(fieldName).Value);
 		}
+
+        /// <summary>
+        /// Gets a date from an element in the XML document.
+        /// We assume UTC but take timezone info in the date into account
+        /// The result is in Universal Time
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="fieldName"></param>
+        /// <returns>The DateTime value in Universal time</returns>
 		public static DateTime GetElementDate(this XElement element, string fieldName)
 		{
-			return Convert.ToDateTime(element.Element(fieldName).Value);
+            CultureInfo provider = CultureInfo.InvariantCulture;
+            return DateTime.Parse(element.Element(fieldName).Value, provider, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
 		}
 
 	}

@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.Xml;
 using System.IO;
 using Path = System.IO.Path;
+using System.Globalization;
 
 namespace MatchRedux
 {
@@ -400,7 +401,7 @@ namespace MatchRedux
 
 		private void Schedule_Click(object sender, RoutedEventArgs e)
 		{
-			new MatchedSchedules(2, new DateTime(2008, 09, 27)).Show();
+			new MatchedSchedules(2, new DateTime(2010, 09, 16)).Show();
 		}
 
 		private void Images_Click(object sender, RoutedEventArgs e)
@@ -437,11 +438,11 @@ namespace MatchRedux
 						 from j2 in j.DefaultIfEmpty()
 						 where j2 == null
 						 select row;
-
+            CultureInfo provider = CultureInfo.InvariantCulture;
 			var items = from row in joined
 						select new redux_items
 						{
-							aired = Convert.ToDateTime(row.Elements("field").First(f=>f.Attribute("name").Value == "start").Value).ToUniversalTime(),
+							aired = DateTime.Parse(row.Elements("field").First(f=>f.Attribute("name").Value == "start").Value, provider, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal),
 							disk_reference = row.Elements("field").First(f => f.Attribute("name").Value == "disk_reference").Value,
 							programme_crid = row.Elements("field").First(f => f.Attribute("name").Value == "pcrid").Value,
 							series_crid = row.Elements("field").First(f => f.Attribute("name").Value == "scrid").Value,
@@ -496,6 +497,7 @@ namespace MatchRedux
 				scrid
 				end
 				 */
+                CultureInfo provider = CultureInfo.InvariantCulture;
 
 				if (reader.IsStartElement() && reader.Name == "field")
 				{
@@ -520,7 +522,7 @@ namespace MatchRedux
 							break;
 						case "start":
 							string dt = reader.ReadElementContentAsString();
-							item.aired = Convert.ToDateTime(dt);
+							item.aired = DateTime.Parse(dt, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
 							break;
 						case "pcrid":
 							item.programme_crid = reader.ReadElementContentAsString();
@@ -684,6 +686,21 @@ namespace MatchRedux
         {
             CheckTranscripts win = new CheckTranscripts();
             win.Show();
+        }
+
+        private void TestThumbnails(object sender, RoutedEventArgs e)
+        {
+            Thumbnail thumbnail = new Thumbnail();
+            thumbnail.Show();
+            ReduxEntities ctx = new ReduxEntities();
+            var pids = from p in ctx.pips_programmes.OrderByDescending(p => p.start_gmt).Take(50)
+                       select p.pid;
+
+            foreach (var pid in pids)
+            {
+                thumbnail.ShowImage("http://node2.bbcimg.co.uk/iplayer/images/episode/" + pid + "_314_176.jpg");
+            }
+
         }
 
 	}
