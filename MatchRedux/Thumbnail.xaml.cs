@@ -23,7 +23,9 @@ namespace MatchRedux
 	{
         private Queue<ImageItem> waitingItems = new Queue<ImageItem>();
 
-		public Thumbnail()
+        private delegate void MyDelegate();
+
+        public Thumbnail()
 		{
 			InitializeComponent();
 			images = new ImageItem[]
@@ -78,7 +80,11 @@ namespace MatchRedux
 			{
 				return;
 			}
-			item.SetImage(url);
+            Dispatcher.BeginInvoke((MyDelegate)delegate
+            {
+                item.SetImage(url);
+            });
+
             }
             else
             {
