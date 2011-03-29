@@ -15,6 +15,7 @@ using System.Xml.Linq;
 using System.Diagnostics;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Xml;
+using System.Collections.ObjectModel;
 
 namespace MatchRedux
 {
@@ -417,6 +418,51 @@ namespace MatchRedux
 
 			dataGrid1.ItemsSource = partial;
 		}
+
+        private async void NewUnmatchedScan(object sender, RoutedEventArgs e)
+        {
+            var items = reduxItems;
+            DateTime cutoff = new DateTime(2010, 5, 1);
+            var unmatched = (from r in items.redux_items
+                             from rp in items.redux_to_pips
+                             where r.id == rp.redux_id && rp.pips_id == 0
+                             && r.aired >= cutoff
+                             select new { r, rp }).ToList();
+            ObservableCollection<ReduxViewModel> collection = new ObservableCollection<ReduxViewModel>();
+            dataGrid1.ItemsSource = collection;
+            int counter = 0;
+            foreach (var item in unmatched)
+            {
+                if (_cancelled)
+                {
+                    break;
+                }
+                var rangestart = item.r.aired.AddMinutes(-5);
+                var rangeend = item.r.aired.AddMinutes(5);
+                List<ReduxViewModel> pipsmatches = await TaskEx.Run<List<ReduxViewModel>>(() =>
+                {
+                    return (from p in items.pips_programmes
+                            //where p.start_gmt >= rangestart && p.start_gmt <= rangeend
+                            where p.start_gmt == item.r.aired
+                            && p.service_id == item.r.service_id
+                            select p).ToList().Select(p => new ReduxViewModel(item.r, p, item.rp)).ToList();
+                });
+                pipsmatches = pipsmatches.Where(rvm => rvm.IsPartialMatchWithDescription == false).ToList();
+                if (pipsmatches.Count > 0)
+                {
+                    foreach (var vm in pipsmatches)
+                    {
+                        collection.Add(vm);
+                    }
+                }
+                //else
+                //{
+                //    collection.Add(new ReduxViewModel(item.r, null, item.rp));
+                //}
+                //if (++counter % 250 == 0) await TaskEx.Yield();
+            }
+            working.Content = "Finished unmatched";
+        }
 
 		private void MarkPartialDesc_Click(object sender, RoutedEventArgs e)
 		{

@@ -19,7 +19,7 @@
             <Button Content="New Progs" Click="GetPipsForNewReduxData" />
             <Button Content="Missing Genres" Click="MissingGenres" Width="115" />
             <Button Content="Check Transcripts" Click="CheckTranscriptsEx" Width="128" />
-            <Button Content="TestThumbnails" Click="TestThumbnails" Width="116" />
+            <Button Content="Run Matcher" Click="RunMatcherClick" Width="116" />
             <Label x:Name="label" Width="200" Height="24" Margin="5"/>
         </WrapPanel>
         <DataGrid x:Name="dataGrid" Grid.Row="1"/>

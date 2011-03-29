@@ -46,6 +46,7 @@
             <Button Content="Partial w/Desc" Click="TestPartialDesc_Click" Width="130"/>
             <Button Content="Mark as partial" Click="MarkPartialDesc_Click" Width="130"/>
             <Button Content="Partial dsc no title" Click="TestPartialNotTitle_Click" Width="130"/>
+            <Button Content="New Unmatched" Click="NewUnmatchedScan" Width="130" />
         </WrapPanel>
         <DataGrid Grid.Row="1" AutoGenerateColumns="False" 
                   HorizontalAlignment="Stretch" 
@@ -59,8 +60,9 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="220"/>
-                                    <ColumnDefinition Width="30"/>
-                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition Width="20"/>
                                 </Grid.ColumnDefinitions>
                                 <Button Content="Delete" Margin="5" Click="MagicButton_Click"/>
                                 <Grid Grid.Column="1" Width="200" Height="35">
@@ -69,13 +71,17 @@
                                     <Rectangle Width="{Binding PipsProgWidth}" ToolTip="{Binding PipsBarTip}" Canvas.Top="20" Height="10" Canvas.Left="{Binding PipsProgOffset}" Fill="#FFA0CADB"/>
                                     </Canvas>
                                 </Grid>
-                                <Grid Grid.Column="2">
+                                <Grid Grid.Column="2" Height="20">
                                     <Ellipse Fill="Red" Visibility="{Binding Converter={StaticResource BoolVisibilityConverter},ConverterParameter=invert,Path=IsPartialTitleMatch}" Margin="2"/>
                                     <Ellipse Fill="Green" Visibility="{Binding Converter={StaticResource BoolVisibilityConverter},Path=IsPartialTitleMatch}" Margin="2"/>
                                 </Grid>
-                                <Grid Grid.Column="3">
+                                <Grid Grid.Column="3" Height="20">
                                     <Ellipse Fill="Red" Visibility="{Binding Converter={StaticResource BoolVisibilityConverter},ConverterParameter=invert,Path=IsPartialMatchWithDescription}" Margin="2"/>
                                     <Ellipse Fill="Green" Visibility="{Binding Converter={StaticResource BoolVisibilityConverter},Path=IsPartialMatchWithDescription}" Margin="2"/>
+                                </Grid>
+                                <Grid Grid.Column="4" Height="20">
+                                    <Ellipse Fill="Red" Visibility="{Binding Converter={StaticResource BoolVisibilityConverter},ConverterParameter=invert,Path=IsGoodTitleMatch}" Margin="2"/>
+                                    <Ellipse Fill="Green" Visibility="{Binding Converter={StaticResource BoolVisibilityConverter},Path=IsGoodTitleMatch}" Margin="2"/>
                                 </Grid>
                             </Grid>
                         </DataTemplate>
@@ -160,6 +166,7 @@
                             <TextBlock Margin="5" ><Hyperlink Click="Navigate_Url" NavigateUri="{Binding ProgrammesUrl}"><TextBlock Text="Xml Data"/></Hyperlink></TextBlock>
                             <TextBlock Margin="5" ><Hyperlink Click="Navigate_Url" NavigateUri="{Binding ProgrammesUrlHtml}"><TextBlock Text="Page Data"/></Hyperlink></TextBlock>
                             <TextBlock Margin="5" ><Hyperlink Click="Navigate_Url" NavigateUri="{Binding ProgrammesUrlRedux}"><TextBlock Text="Redux"/></Hyperlink></TextBlock>
+                            <TextBlock Margin="5" Text="{Binding NameWeighting}"/>
                             <Button Content="Schedule" Width="70" Margin="4" Click="ShowSchedule_Click"/>
                         </StackPanel>
                     </Grid>

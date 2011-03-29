@@ -56,13 +56,97 @@ namespace MatchRedux
 
 	}
 
-	public class ReduxViewModel
+	public class ReduxViewModel : ViewModelBase
 	{
 		public static Services Services = new Services();
 
-		public redux_items ReduxItem { get; set; }
-		public pips_programmes Programme { get; set; }
-		public redux_to_pips ReduxToProgramme { get; set; }
+		//public redux_items ReduxItem { get; set; }
+        private redux_items reduxItem;
+
+        public redux_items ReduxItem
+        {
+            get { return reduxItem; }
+            set
+            {
+                reduxItem = value;
+                FireChanged("ReduxItem");
+                FireChanged("ServiceName");
+                FireChanged("ProgrammesUrl");
+                FireChanged("ProgrammesUrlHtml");
+                FireChanged("ProgrammesUrlRedux");
+                FireChanged("Duration");
+                FireChanged("MinStart");
+                FireChanged("MaxEnd");
+                FireChanged("ReduxProgWidth");
+                FireChanged("ReduxProgOffset");
+                FireChanged("ReduxBarTip");
+                FireChanged("IsPartialTitleMatch");
+                FireChanged("IsPartialMatchWithDescription");
+                FireChanged("IsGoodTitleMatch");
+                SetWeightings();
+            }
+        }
+
+        //public pips_programmes Programme { get; set; }
+        private pips_programmes programme;
+
+        public pips_programmes Programme
+        {
+            get { return programme; }
+            set
+            {
+                programme = value;
+                FireChanged("Programme");
+                FireChanged("ProgrammesUrlPips");
+                FireChanged("PipsDuration");
+                FireChanged("MinStart");
+                FireChanged("MaxEnd");
+                FireChanged("PipsProgWidth");
+                FireChanged("PipsProgOffset");
+                FireChanged("PipsBarTip");
+                FireChanged("IsPartialTitleMatch");
+                FireChanged("IsPartialMatchWithDescription");
+                FireChanged("IsGoodTitleMatch");
+                SetWeightings();
+            }
+        }
+
+        private void SetWeightings()
+        {
+            if (reduxItem != null && programme != null)
+            {
+                NameWeighting = PartialMatch.GetMatchWeighting(reduxItem, programme);
+                ScheduleMatch = PartialMatch.GetScheduleWeighting(reduxItem, programme);
+                SimpleWeighting = PartialMatch.GetSimpleWeighting(reduxItem, programme);
+            }
+        }
+
+        private double simpleWeighting;
+
+        public double SimpleWeighting
+        {
+            get { return simpleWeighting; }
+            set
+            {
+                simpleWeighting = value;
+                FireChanged("SimpleWeighting");
+            }
+        }
+
+
+		//public redux_to_pips ReduxToProgramme { get; set; }
+        private redux_to_pips reduxToProgramme;
+
+        public redux_to_pips ReduxToProgramme
+        {
+            get { return reduxToProgramme; }
+            set
+            {
+                reduxToProgramme = value;
+                FireChanged("ReduxToProgramme");
+            }
+        }
+
 		
 		public ReduxViewModel(redux_items redux, pips_programmes pips, redux_to_pips join)
 		{
@@ -229,38 +313,71 @@ namespace MatchRedux
 		{
 			get
 			{
-				if (ReduxItem == null || Programme == null)
-				{
-					return false;
-				}
-				return PartialMatch.IsPartialMatch(ReduxItem.programme_name, Programme.display_title);
+                return PartialMatch.IsPartialTitleMatch(ReduxItem, Programme);
+                //if (ReduxItem == null || Programme == null)
+                //{
+                //    return false;
+                //}
+                //return PartialMatch.IsPartialMatch(ReduxItem.programme_name, Programme.display_title);
 			}
 		}
+
+        public bool IsGoodTitleMatch
+        {
+            get
+            {
+                return PartialMatch.IsGoodTitleMatch(ReduxItem, Programme);
+            }
+        }
 
 		public bool IsPartialMatchWithDescription
 		{
 			get
 			{
-				if (ReduxItem == null || Programme == null)
-				{
-					return false;
-				}
-				if (PartialMatch.IsPartialMatch(ReduxItem.programme_name, Programme.display_title))
-				{
-					return true;
-				}
-				if (PartialMatch.IsPartialMatch(ReduxItem.programme_name, Programme.display_subtitle))
-				{
-					return true;
-				}
-				string reduxdesc = ReduxItem.short_description;
-				if (reduxdesc.Contains("] Followed by "))
-				{
-					reduxdesc = reduxdesc.Substring(0, reduxdesc.IndexOf("] Followed by "));
-				}
-				return PartialMatch.IsPartialMatch(ReduxItem.programme_name + " " + reduxdesc, Programme.display_title + " " + Programme.description);
+                return PartialMatch.IsPartialTitleMatchWithDescription(ReduxItem, Programme);
+                //if (ReduxItem == null || Programme == null)
+                //{
+                //    return false;
+                //}
+                //if (PartialMatch.IsPartialMatch(ReduxItem.programme_name, Programme.display_title))
+                //{
+                //    return true;
+                //}
+                //if (PartialMatch.IsPartialMatch(ReduxItem.programme_name, Programme.display_subtitle))
+                //{
+                //    return true;
+                //}
+                //string reduxdesc = ReduxItem.short_description;
+                //if (reduxdesc.Contains("] Followed by "))
+                //{
+                //    reduxdesc = reduxdesc.Substring(0, reduxdesc.IndexOf("] Followed by "));
+                //}
+                //return PartialMatch.IsPartialMatch(ReduxItem.programme_name + " " + reduxdesc, Programme.display_title + " " + Programme.description);
 			}
 		}
+        private double nameWeighting;
+
+        public double NameWeighting
+        {
+            get { return nameWeighting; }
+            set
+            {
+                nameWeighting = value;
+                FireChanged("NameWeighting");
+            }
+        }
+
+        private ScheduleMatchData scheduleMatch;
+
+        public ScheduleMatchData ScheduleMatch
+        {
+            get { return scheduleMatch; }
+            set
+            {
+                scheduleMatch = value;
+                FireChanged("ScheduleMatch");
+            }
+        }
 	}
 
 
