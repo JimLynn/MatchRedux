@@ -40,6 +40,8 @@
             <Label x:Name="working" Margin="5"/>
             <Button Content="Show Mismatches" Click="Mismatch_Click" Width="130"
                     ToolTipService.ToolTip="Show all umatched redux items in the grid"/>
+            <Button Content="Mismatches+Pips" Click="MismatchWithAdjacentSchedule" Width="130"
+                    ToolTipService.ToolTip="Show umatched redux items with adjacent pips programmes"/>
             <Button Content="Double Overlaps" Click="DoubleOverlap_Click" Width="130"/>
             <Button Content="Test Partial" Click="TestPartial_Click" Width="100"/>
             <Button Content="Test No Partial" Click="TestNoPartial_Click" Width="130"/>
@@ -71,15 +73,15 @@
                                     <Rectangle Width="{Binding PipsProgWidth}" ToolTip="{Binding PipsBarTip}" Canvas.Top="20" Height="10" Canvas.Left="{Binding PipsProgOffset}" Fill="#FFA0CADB"/>
                                     </Canvas>
                                 </Grid>
-                                <Grid Grid.Column="2" Height="20">
+                                <Grid Grid.Column="2" Height="20" Background="Transparent" ToolTip="IsPartialTitleMatch">
                                     <Ellipse Fill="Red" Visibility="{Binding Converter={StaticResource BoolVisibilityConverter},ConverterParameter=invert,Path=IsPartialTitleMatch}" Margin="2"/>
                                     <Ellipse Fill="Green" Visibility="{Binding Converter={StaticResource BoolVisibilityConverter},Path=IsPartialTitleMatch}" Margin="2"/>
                                 </Grid>
-                                <Grid Grid.Column="3" Height="20">
+                                <Grid Grid.Column="3" Height="20" Background="Transparent" ToolTip="IsPartialMatchWithDescription">
                                     <Ellipse Fill="Red" Visibility="{Binding Converter={StaticResource BoolVisibilityConverter},ConverterParameter=invert,Path=IsPartialMatchWithDescription}" Margin="2"/>
                                     <Ellipse Fill="Green" Visibility="{Binding Converter={StaticResource BoolVisibilityConverter},Path=IsPartialMatchWithDescription}" Margin="2"/>
                                 </Grid>
-                                <Grid Grid.Column="4" Height="20">
+                                <Grid Grid.Column="4" Height="20" Background="Transparent" ToolTip="IsGoodTitleMatch">
                                     <Ellipse Fill="Red" Visibility="{Binding Converter={StaticResource BoolVisibilityConverter},ConverterParameter=invert,Path=IsGoodTitleMatch}" Margin="2"/>
                                     <Ellipse Fill="Green" Visibility="{Binding Converter={StaticResource BoolVisibilityConverter},Path=IsGoodTitleMatch}" Margin="2"/>
                                 </Grid>

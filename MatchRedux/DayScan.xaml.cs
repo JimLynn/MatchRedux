@@ -88,6 +88,18 @@ namespace MatchRedux
 			dataGrid1.ItemsSource = items;
 		}
 
+        private void MismatchWithAdjacentSchedule(object sender, RoutedEventArgs e)
+        {
+            var items = (from r in reduxItems.redux_items
+                         from rp in reduxItems.redux_to_pips
+                         from p in reduxItems.pips_programmes
+                         where rp.pips_id == 0 && r.id == rp.redux_id
+                         && p.start_gmt == r.aired && p.service_id == r.service_id
+                         select new { ReduxItem = r, ReduxToProgramme = rp, Programme = p }).AsEnumerable().Select(it => new ReduxViewModel(it.ReduxItem, it.Programme, it.ReduxToProgramme)).ToList();
+            working.Content = items.Count;
+            dataGrid1.ItemsSource = items;
+        }
+
 		private void Navigate_Url(object sender, RoutedEventArgs e)
 		{
 			var link = (Hyperlink)sender;
