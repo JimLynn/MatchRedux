@@ -44,25 +44,25 @@ namespace MatchRedux
 				var items = from element in schedule.Element("day").Element("broadcasts").Elements("broadcast")
 							select new XElement("programme", new XAttribute("serviceid", sid), element);
 				XElement previous = null;
-				foreach (var item in items)
-				{
-					if (previous != null)
-					{
-						var st = previous.Element("broadcast").GetElementDate("end");
-						var en = item.Element("broadcast").GetElementDate("start");
-						if (st < en)
-						{
-							if ((sid == 1 || sid == 6) && en.Hour == 19 && en.Minute == 0)
-							{
-							}
-							else
-							{
+                //foreach (var item in items)
+                //{
+                //    if (previous != null)
+                //    {
+                //        var st = previous.Element("broadcast").GetElementDate("end");
+                //        var en = item.Element("broadcast").GetElementDate("start");
+                //        if (st < en)
+                //        {
+                //            if ((sid == 1 || sid == 6) && en.Hour == 19 && en.Minute == 0)
+                //            {
+                //            }
+                //            else
+                //            {
 
-							}
-						}
-					}
-					previous = item;
-				}
+                //            }
+                //        }
+                //    }
+                //    previous = item;
+                //}
 				programmeElements.AddRange(items);
 			}
 
@@ -103,7 +103,7 @@ namespace MatchRedux
                 {
                     break;
                 }
-                if (already.Any(p => p.service_id == prog.service_id && p.start_time == prog.start_time) == false)
+                if (already.Any(p => p.service_id == prog.service_id && p.start_gmt == prog.start_gmt) == false)
 				{
 					reduxItems.pips_programmes.AddObject(prog);
 			        reduxItems.SaveChanges();
@@ -117,6 +117,10 @@ namespace MatchRedux
                     }
 				}
 			}
+            if (pendingTasks.Count > 0)
+            {
+                await TaskEx.WhenAll(pendingTasks);
+            }
 			//reduxItems.Scanned.Add(new Scanned() { DateScanned = dayStart });
 
 			//}
