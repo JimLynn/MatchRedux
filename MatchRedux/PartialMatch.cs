@@ -82,6 +82,10 @@ namespace MatchRedux
 
         private static string NormaliseTitle(string title)
         {
+            if (title == null)
+            {
+                return "";
+            }
             return string.Join(" ", title.ToLower().Split(' ').Where(s => s.Length > 0));
         }
 
@@ -120,7 +124,11 @@ namespace MatchRedux
             {
                 reduxdesc = reduxdesc.Substring(0, reduxdesc.IndexOf("] Followed by "));
             }
-            return PartialMatch.IsPartialMatch(redux.programme_name + " " + reduxdesc, pips.display_title + " " + pips.description);
+            if (reduxdesc.Contains("] Then "))
+            {
+                reduxdesc = reduxdesc.Substring(0, reduxdesc.IndexOf("] Then "));
+            }
+            return PartialMatch.IsPartialMatch(redux.programme_name + " " + reduxdesc, pips.display_title + " " + pips.display_subtitle + " " + pips.description);
         }
 
         public static double GetSimpleWeighting(redux_items redux, pips_programmes pips)
@@ -187,7 +195,7 @@ namespace MatchRedux
 
 		private static string[] GetMatchWords(string str)
 		{
-			return Regex.Split(str, @"\W+").Where(s => s.Length > 0 && "and*a*the*an".Contains(s.ToLower()) == false).ToArray();
+			return Regex.Split(str, @"\W+").Where(s => s.Length > 0 && "and*a*the*an*in*of".Contains(s.ToLower()) == false).ToArray();
 		}
 
 		public static bool IsPartialMatch(string first, string second)

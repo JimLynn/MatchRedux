@@ -106,9 +106,15 @@ namespace MatchRedux
 			Process.Start(((Hyperlink)sender).NavigateUri.ToString());
 		}
 
-        private void JoinEm(object sender, RoutedEventArgs e)
+        private async void JoinEm(object sender, RoutedEventArgs e)
         {
-            viewModel.JoinUnjoined();
+            Fetcher fetcher = new Fetcher();
+            Progress progress = new Progress();
+            var thumbnail = new Thumbnail();
+            progress.Show();
+            thumbnail.Show();
+            await fetcher.GetDayScheduleAsync(viewModel.Date, progress, thumbnail);
+            MessageBox.Show("Updated schedules for " + viewModel.Date.ToString());
         }
 	}
 

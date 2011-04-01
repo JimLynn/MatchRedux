@@ -711,19 +711,26 @@ namespace MatchRedux
             Progress progress = new Progress();
             progress.Show();
             ReduxEntities ctx = new ReduxEntities();
-            DateTime cutoff = new DateTime(2010, 5, 1);
+            //DateTime cutoff = new DateTime(2010, 5, 1);
             var unmatched = (from r in ctx.redux_items
                              from rp in ctx.redux_to_pips
                              where r.id == rp.redux_id && rp.pips_id == 0
-                             && r.aired >= cutoff
-                             select new { r, rp }).AsEnumerable().Select(u => new UnmatchedItem(u.r, u.rp)).ToList(); ;
+                             //&& r.aired >= cutoff
+                             select r).ToList(); ;
             int count = 0;
-            foreach (var item in unmatched)
+            foreach (var unmatcheditem in unmatched)
             {
                 if (progress.IsCancelled)
                 {
                     break;
                 }
+
+                var item = new UnmatchedItem(unmatcheditem, ctx.redux_to_pips.FirstOrDefault(rp => rp.redux_id == unmatcheditem.id));
+                if (item.rp == null || item.rp.pips_id > 0)
+                {
+                    continue;
+                }
+
                 var rangestart = item.r.aired.AddMinutes(-5);
                 var rangeend = item.r.aired.AddMinutes(5);
                 var pipsmatches = await TaskEx.Run<List<pips_programmes>>(() =>
@@ -734,47 +741,90 @@ namespace MatchRedux
                                 select p).ToList();
                     });
                 string matchedpid = null;
+                bool isMatchMade = false;
                 if (pipsmatches.Count == 0)
                 {
-                    progress.WriteLine("Unmatched: {0} {1} {2}", item.r.disk_reference, item.r.programme_name, item.r.aired);
+                    //progress.WriteLine("Unmatched: {0} {1} {2}", item.r.disk_reference, item.r.programme_name, item.r.aired);
                 }
                 else if (pipsmatches.Count == 1)
                 {
                     var p = pipsmatches.First();
-                    var rp = new redux_to_pips
+                    if (PartialMatch.GetSimpleWeighting(item.r, p) > 0)
                     {
-                        duration_match = item.rp.duration_match,
-                        ischecked = item.rp.ischecked,
-                        partial_match = (item.r.programme_name == p.display_title) == false,
-                        pips_id = p.id,
-                        redux_id = item.rp.redux_id,
-                        start_match = true,
-                        title_match = (item.r.programme_name == p.display_title)
-                    };
-                    ctx.redux_to_pips.DeleteObject(item.rp);
-                    ctx.redux_to_pips.AddObject(rp);
-                    item.rp = rp;
-                    ctx.SaveChanges();
-                    matchedpid = p.pid;
-                    //progress.WriteLine("Matched: {0} {1} {2} -> {3} {4} {5}", item.r.disk_reference, item.r.programme_name, item.r.aired, p.pid, p.display_title, p.start_gmt);
+                        MakeMatch(ctx, item, p);
+                        matchedpid = p.pid;
+                        isMatchMade = true;
+                        //progress.WriteLine("Matched: {0} {1} {2} -> {3} {4} {5}", item.r.disk_reference, item.r.programme_name, item.r.aired, p.pid, p.display_title, p.start_gmt);
+                    }
                 }
                 else
                 {
-                    progress.WriteLine("Matched: {0} {1} {2} ->", item.r.disk_reference, item.r.programme_name, item.r.aired);
-                    foreach (var pipsmatch in pipsmatches)
-                    {
-                        var p = pipsmatch;
-                        progress.WriteLine("         -> {0} {1} {2}", p.pid, p.display_title, p.start_gmt);
-                    }
-                    matchedpid = pipsmatches.First().pid;
+                    //progress.WriteLine("Matched: {0} {1} {2} ->", item.r.disk_reference, item.r.programme_name, item.r.aired);
+                    //foreach (var pipsmatch in pipsmatches)
+                    //{
+                    //    var p = pipsmatch;
+                    //    progress.WriteLine("         -> {0} {1} {2}", p.pid, p.display_title, p.start_gmt);
+                    //}
+                    //matchedpid = pipsmatches.First().pid;
                 }
+
+                if (isMatchMade == false)
+                {
+                    pipsmatches = await TaskEx.Run<List<pips_programmes>>(() =>
+                    {
+                        DateTime fiveminutesbefore = item.r.aired.AddMinutes(-5);
+                        DateTime fiveminutesafter = item.r.aired.AddMinutes(5);
+                        return (from p in ctx.pips_programmes
+                                join rp in ctx.redux_to_pips on p.id equals rp.pips_id into joined
+                                from j in joined.DefaultIfEmpty()
+                                where j == null && p.start_gmt >= fiveminutesbefore
+                                && p.start_gmt <= fiveminutesafter
+                                && p.service_id == item.r.service_id
+                                select p).ToList();
+                    });
+                    var suitable = pipsmatches.Where(p => PartialMatch.GetSimpleWeighting(item.r, p) > 0)
+                            .OrderByDescending(p => PartialMatch.GetSimpleWeighting(item.r, p))
+                            .OrderBy(p=>Math.Abs((p.start_gmt - item.r.aired).TotalSeconds))
+                            .OrderBy(p=>Math.Abs(p.duration - item.r.duration))
+                            .ToList();
+                    if (suitable.Count > 0)
+                    {
+                        pips_programmes matchedpips = suitable.First();
+                        MakeMatch(ctx, item, matchedpips);
+                        isMatchMade = true;
+                        matchedpid = matchedpips.pid;
+                    }
+                }
+
                 if (matchedpid != null)
                 {
                     thumbnails.ShowImage("http://node2.bbcimg.co.uk/iplayer/images/episode/" + matchedpid + "_314_176.jpg");
                 }
+                if (isMatchMade == false)
+                {
+                    progress.WriteLine("Failed to match {0} {1} {2}", item.r.programme_name, item.r.disk_reference, item.r.aired);
+                }
 
             }
             MessageBox.Show("Finished matching unmatched items");
+        }
+
+        private static void MakeMatch(ReduxEntities ctx, UnmatchedItem item, pips_programmes p)
+        {
+            var rp = new redux_to_pips
+            {
+                duration_match = item.rp.duration_match,
+                ischecked = item.rp.ischecked,
+                partial_match = (item.r.programme_name == p.display_title) == false,
+                pips_id = p.id,
+                redux_id = item.rp.redux_id,
+                start_match = true,
+                title_match = (item.r.programme_name == p.display_title)
+            };
+            ctx.redux_to_pips.DeleteObject(item.rp);
+            ctx.redux_to_pips.AddObject(rp);
+            item.rp = rp;
+            ctx.SaveChanges();
         }
 
     }
